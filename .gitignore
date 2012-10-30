@@ -1,0 +1,13 @@
+# Idea Projects #
+###################
+*.iml
+.idea
+
+# Maven target #
+###################
+target
+
+#s4 tmp dir and build dir #
+###################
+tmp
+build
