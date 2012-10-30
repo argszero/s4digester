@@ -42,17 +42,6 @@ def appClassname = ''
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-/* mavenRepo name: "gson", url: "http://google-gson.googlecode.com/svn/mavenrepo" */
-/* http://10.1.252.21:8081/nexus/content/groups/ailk */
-repositories {
-    mavenLocal()
-    mavenCentral()
-    mavenRepo name: "gson", url: "http://10.1.252.21:8081/nexus/content/groups/ailk"
-
-    /* Add lib dir as a repo. Some jar files that are not available
-     in a public repo are distributed in the lib dir. */
-    flatDir name: 'libDir', dirs: "$rootDir/lib"
-}
 
 /* All project libraries must be defined here. */
 project.ext["libraries"] = [
