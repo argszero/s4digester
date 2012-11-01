@@ -38,9 +38,6 @@ apply plugin:'application'
 /* The app classname is set automatically from the source files. */
 def appClassname = ''
 
-/* Set Java version. */
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
 
 
 /* All project libraries must be defined here. */

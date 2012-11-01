@@ -8,4 +8,8 @@ subprojects {
         mavenLocal()
         mavenCentral()
     }
+    /* Set Java version. */
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 }
