@@ -34,7 +34,7 @@ public class SignalingAdapter extends AdapterApp {
                         if(columns.length>3){
                             Event event = new Event();
                             event.put("imsi", String.class, columns[0]);
-                            event.put("time", String.class, columns[1]);
+                            event.put("time", long.class, Long.parseLong(columns[1]));
                             event.put("lac", String.class, columns[2]);
                             event.put("cell", String.class, columns[3]);
                             getRemoteStream().put(event);
