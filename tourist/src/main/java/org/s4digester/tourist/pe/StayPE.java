@@ -26,7 +26,7 @@ public class StayPE extends ProcessingElement {
     }
 
     public void onEvent(Event event) {
-        System.out.println(format("StayPE(%d-%d:%d)Event:%s", event.get("imsi")));
+        System.out.println(format("StayPE(%d-%d:%d)Event:%s", from, to, stay, event.get("imsi")));
     }
 
     @Override
