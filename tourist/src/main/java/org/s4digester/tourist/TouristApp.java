@@ -32,14 +32,14 @@ public class TouristApp extends App {
             }
         }, dayStayPE);
 
-        StayPE nightStayPE = new StayPE(this, 18, 8, 3);
-        //创建一个输入流，侦听所有信令Signaling
-        createInputStream("Signaling", new KeyFinder<Event>() {
-            @Override
-            public List<String> get(Event event) {
-                return Arrays.asList(new String[]{event.get("imsi"), event.get("time"), event.get("lac"), event.get("cell")});
-            }
-        }, nightStayPE);
+//        StayPE nightStayPE = new StayPE(this, 18, 8, 3);
+//        //创建一个输入流，侦听所有信令Signaling
+//        createInputStream("Signaling", new KeyFinder<Event>() {
+//            @Override
+//            public List<String> get(Event event) {
+//                return Arrays.asList(new String[]{event.get("imsi"), event.get("time"), event.get("lac"), event.get("cell")});
+//            }
+//        }, nightStayPE);
     }
 
     @Override
