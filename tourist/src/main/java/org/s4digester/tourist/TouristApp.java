@@ -24,15 +24,16 @@ public class TouristApp extends App {
     @Override
     protected void onInit() {
         StayPE dayStayPE = new StayPE(this, 8, 18, 3);
+        StayPE nightStayPE = new StayPE(this, 18, 8, 3);
         //创建一个输入流，侦听所有信令Signaling
-        createInputStream("Signaling1", new KeyFinder<Event>() {
+        createInputStream("Signaling", new KeyFinder<Event>() {
             @Override
             public List<String> get(Event event) {
                 return Arrays.asList(new String[]{event.get("imsi"), event.get("time"), event.get("lac"), event.get("cell")});
             }
-        }, dayStayPE);
+        }, dayStayPE,nightStayPE);
 
-//        StayPE nightStayPE = new StayPE(this, 18, 8, 3);
+
 //        //创建一个输入流，侦听所有信令Signaling
 //        createInputStream("Signaling", new KeyFinder<Event>() {
 //            @Override
