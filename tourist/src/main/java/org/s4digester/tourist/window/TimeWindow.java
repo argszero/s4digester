@@ -1,7 +1,10 @@
 package org.s4digester.tourist.window;
 
+import org.apache.commons.collections.list.TreeList;
 import org.apache.s4.base.Event;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Time: 上午11:08
  * To change this template use File | Settings | File Templates.
  */
-public class TimeWindow<T> {
+public class TimeWindow {
     /**
      * 窗口大小，单位为毫秒
      */
@@ -33,28 +36,28 @@ public class TimeWindow<T> {
      */
     private long currentSlotDataTime = -1;
 
-    private final Slot<T>[] slots;
+    private final Slot[] slots;
     private int currentSlot = 0;
 
     public TimeWindow(long windowSize, long slotSize) {
         this.windowSize = windowSize;
         this.slotSize = slotSize;
         slots = new Slot[(int) (windowSize / slotSize + windowSize % slotSize == 0 ? 0 : 1)];
-        slots[0] = new Slot<T>();
+        slots[0] = new Slot();
     }
 
-    public void add(long time, T event) {
-        Slot<T> slot = getSlot(time);
+    public void add(long time, Event event) {
+        Slot slot = getSlot(time);
         if (slot != null) {
             slot.add(event);
         }
     }
 
-    private Slot<T> getSlot(long time) {
+    private Slot getSlot(long time) {
         if (currentSlotTime == -1) {
             currentSlotTime = time;
             currentSlotDataTime = time;
-            return new Slot<T>();
+            return new Slot();
         } else if (time < currentSlotDataTime - windowSize) {
             //小于窗口时间，即窗口之前的数据，丢弃
             return null;
@@ -62,26 +65,35 @@ public class TimeWindow<T> {
             //如果是之后的数据，则新建一个slot
             //对于新建slot的情况应该比较少，可以使用锁
             synchronized (this) {
-                Slot<T> slot;
+                Slot slot;
                 while (time > (currentSlotTime + slotSize)) {
                     currentSlotTime += slotSize;
                     ++currentSlot;
                     currentSlot = currentSlot % slots.length;
-                    slots[currentSlot] = new Slot<T>();
+                    slots[currentSlot] = new Slot();
                 }
                 return slots[currentSlot];
             }
         } else {
-            //大多事情况
+            //大多数情况
             //如果是窗口内的某个slot，不一定是最新的slot
             //比如，对于【(9,12]，(13,16]，(17,20]】， 当前时间为10，则应该选slot[0], 如果为14，则应该选slot[1]
             return slots[((int) (currentSlot + (time - currentSlotTime) / slotSize))];
         }
     }
 
-    private static class Slot<T> {
+    private static class Slot {
+        private TreeSet events = new TreeSet<Event>(new Comparator<Event>() {
+            @Override
+            public int compare(Event o1, Event o2) {
+                return o1.get("time").compareTo(o2.get("time"));
+            }
+        }); //TreeList的 add(index,item)方法性能高于ArrayList
 
-        public void add(T event) {
+        public void add(Event event) {
+            synchronized (events) {
+                events.add(event);
+            }
         }
     }
 }
