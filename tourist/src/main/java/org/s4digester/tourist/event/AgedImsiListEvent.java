@@ -2,33 +2,27 @@ package org.s4digester.tourist.event;
 
 import org.apache.s4.base.Event;
 
-import java.util.List;
-
 /**
- * Created with IntelliJ IDEA.
- * User: shaoaq
- * Date: 12-11-7
- * Time: 下午7:01
- * To change this template use File | Settings | File Templates.
+ * 指定用户(imsi),是否符合条件(matches)
  */
 public class AgedImsiListEvent extends Event {
-    private List<String> imsiList;
-    private long lastAge;
+    private String imsi;
 
-    public List<String> getImsiList() {
-        return imsiList;
+    private boolean matches;
+
+    public String getImsi() {
+        return imsi;
     }
 
-    public void setImsiList(List<String> imsiList) {
-        this.imsiList = imsiList;
+    public void setImsi(String imsi) {
+        this.imsi = imsi;
     }
 
-
-    public void setLastAge(long lastAge) {
-        this.lastAge = lastAge;
+    public boolean isMatches() {
+        return matches;
     }
 
-    public long getLastAge() {
-        return lastAge;
+    public void setMatches(boolean matches) {
+        this.matches = matches;
     }
 }

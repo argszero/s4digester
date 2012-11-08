@@ -35,7 +35,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     }
 
     @Override
-    protected void onTime() { //每天18点定时执行，如果用户最后一次信令在景区，并且18点之后没有信令，则认为用户一直在。
+    protected void onTime() { //每天18点定时执行，如果用户最后一次信令在景区，并且直到18点都没有信令，则认为用户一直在。
         for (Map.Entry<String, SingleImsiProcessor> entry : processorMap.entrySet()) {
             StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = entry.getValue().forceCheck(entry.getKey());
             if (stayScenicDuringDaytimeEvent != null) {

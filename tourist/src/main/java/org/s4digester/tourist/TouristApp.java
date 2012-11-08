@@ -47,7 +47,7 @@ public class TouristApp extends App {
         }, stayScenicDuringDaytimePE, stayScenicDuringNightPE);
 
         //3. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
-        //   输出所有10天内白天满足该条件的天数小于5天的用户
+        //   输出新增10天内白天满足该条件的天数小于5天的用户
         Daytime5In10PE daytime5In10PE = new Daytime5In10PE();
         Stream<StayScenicDuringDaytimeEvent> stayScenicDuringDaytime = createInputStream("StayScenicDuringDaytime", new KeyFinder<StayScenicDuringDaytimeEvent>() {
             @Override
@@ -56,9 +56,13 @@ public class TouristApp extends App {
             }
         }, daytime5In10PE);
         stayScenicDuringDaytimePE.setStreams(stayScenicDuringDaytime);
+        //当白天统计周期变更（新的一天到来时），需要通知所有的daytime5In10PE，重新计算一下十天前符合条件的用户是否还继续符合条件
+        Stream<DaytimeAgeUpdateEvent> ageUpdateStream = createInputStream("AgeUpdateStream", daytime5In10PE);
+        daytime5In10PE.setAgeUpdateStreams(ageUpdateStream);
+
 
         //4. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
-        //   输出所有10天内白天满足该条件的天数小于5天的用户
+        //   输出新增10天内白天满足该条件的天数小于5天的用户
         Night5In10PE night5In10PE = new Night5In10PE();
         Stream<StayScenicDuringNightEvent> stayScenicDuringNight = createInputStream("StayScenicDuringNight", new KeyFinder<StayScenicDuringNightEvent>() {
             @Override
@@ -74,14 +78,14 @@ public class TouristApp extends App {
         Stream<Daytime5In10Event> daytime5In10 = createInputStream("Daytime5In10", new KeyFinder<Daytime5In10Event>() {
             @Override
             public List<String> get(Daytime5In10Event event) {
-                return event.getImsiList();
+                return Arrays.asList(event.getImsi());
             }
         }, joinAndPrintPE);
         daytime5In10PE.setStreams(daytime5In10);
         Stream<Night5In10Event> night5In10 = createInputStream("Night5In10", new KeyFinder<Night5In10Event>() {
             @Override
             public List<String> get(Night5In10Event event) {
-                return event.getImsiList();
+                return Arrays.asList(event.getImsi());
             }
         }, joinAndPrintPE);
         night5In10PE.setStreams(night5In10);
