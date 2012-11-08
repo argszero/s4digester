@@ -1,7 +1,7 @@
 package org.s4digester.tourist;
 
-import org.apache.s4.base.Event;
 import org.apache.s4.core.adapter.AdapterApp;
+import org.s4digester.tourist.event.SignalingEvent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,12 +31,12 @@ public class SignalingAdapter extends AdapterApp {
                         String line = in.readLine();
                         String[] columns = line.split(",");
                         System.out.println("read: " + line);
-                        if(columns.length>3){
-                            Event event = new Event();
-                            event.put("imsi", String.class, columns[0]);
-                            event.put("time", long.class, Long.parseLong(columns[1]));
-                            event.put("lac", String.class, columns[2]);
-                            event.put("cell", String.class, columns[3]);
+                        if (columns.length > 3) {
+                            SignalingEvent event = new SignalingEvent();
+                            event.setImsi(columns[0]);
+                            event.setTime(Long.parseLong(columns[1]));
+                            event.setLoc(columns[2]);
+                            event.setCell(columns[3]);
                             getRemoteStream().put(event);
                         }
                         connectedSocket.close();

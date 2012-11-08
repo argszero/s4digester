@@ -3,11 +3,9 @@ package org.s4digester.tourist.pe;
 import org.apache.s4.core.ProcessingElement;
 
 /**
- * 合并前两个PE的结果，并从知识库中检测是否符合在网时长规则
+ *  白天10天内满足条件大于5天的用户
  */
-public class ConjunctionAndOnlineTimePE extends ProcessingElement {
-    private long onlineTime;//在网时长
-
+public class Daytime5In10PE extends ProcessingElement {
     @Override
     protected void onCreate() {
         //To change body of implemented methods use File | Settings | File Templates.
