@@ -71,18 +71,20 @@ public class TouristApp extends App {
         //5. PE[JoinAndPrintPE]同时接收stayScenicDuringDaytime和stayScenicDuringNight。
         //   取交集，并根据知识库的信息过滤掉在网时长不超过3个月的用户，然后输出
         JoinAndPrintPE joinAndPrintPE = new JoinAndPrintPE();
-        createInputStream("Daytime5In10", new KeyFinder<Daytime5In10Event>() {
+        Stream<Daytime5In10Event> daytime5In10 = createInputStream("Daytime5In10", new KeyFinder<Daytime5In10Event>() {
             @Override
             public List<String> get(Daytime5In10Event event) {
-                return Arrays.asList(event.getImsi());
+                return event.getImsiList();
             }
         }, joinAndPrintPE);
-        createInputStream("Night5In10", new KeyFinder<Night5In10Event>() {
+        daytime5In10PE.setStreams(daytime5In10);
+        Stream<Night5In10Event> night5In10 = createInputStream("Night5In10", new KeyFinder<Night5In10Event>() {
             @Override
             public List<String> get(Night5In10Event event) {
-                return Arrays.asList(event.getImsi());
+                return event.getImsiList();
             }
         }, joinAndPrintPE);
+        night5In10PE.setStreams(night5In10);
         logger.info("Finish init TouristApp");
     }
 
