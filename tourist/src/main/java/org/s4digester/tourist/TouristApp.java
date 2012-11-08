@@ -55,7 +55,7 @@ public class TouristApp extends App {
                 return Arrays.asList(event.getImsi());
             }
         }, daytime5In10PE);
-        stayScenicDuringDaytimePE.setStream(stayScenicDuringDaytime);
+        stayScenicDuringDaytimePE.setStreams(stayScenicDuringDaytime);
 
         //4. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出所有10天内白天满足该条件的天数小于5天的用户
