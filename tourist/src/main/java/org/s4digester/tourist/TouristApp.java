@@ -37,7 +37,7 @@ public class TouristApp extends App {
         //      即：Stream[Event[StayScenicDuringNightEvent]]
         //   PE根据用户imsi分发，保证同一个imsi会由同一个PE接收
 
-        StayScenicDuringNightPE stayScenicDuringDaytimePE = new StayScenicDuringNightPE();
+        StayScenicDuringDaytimePE stayScenicDuringDaytimePE = new StayScenicDuringDaytimePE();
         StayScenicDuringNightPE stayScenicDuringNightPE = new StayScenicDuringNightPE();
         createInputStream("Signaling", new KeyFinder<SignalingEvent>() {
             @Override
@@ -99,7 +99,7 @@ public class TouristApp extends App {
         // StayScenicDuringDaytimePE(检查所有在白天公园的用户，是否符合3个小时的条件)。StayScenicDuringNightPE(检查所有在晚上公园的用户，是否符合5个小时的条件)接收发送数据
         //数据比较少，就不需要白天只接受白天数据，晚上只接收晚上数据了，一起发送就可以了
         Stream<NextMillOfDayUpdateEvent> nextMillOfDayUpdateEventStream = createInputStream("NextMillOfDayUpdate", stayScenicDuringDaytimePE, stayScenicDuringNightPE);
-        stayScenicDuringDaytimePE.setNextMillOfDayUpdateEventStreams(new Stream<NextMillOfDayUpdateEvent>[]{nextMillOfDayUpdateEventStream});
+        stayScenicDuringDaytimePE.setNextMillOfDayUpdateEventStreams(nextMillOfDayUpdateEventStream);
         stayScenicDuringNightPE.setNextMillOfDayUpdateEventStreams(nextMillOfDayUpdateEventStream);
         logger.info("Finish init TouristApp");
     }

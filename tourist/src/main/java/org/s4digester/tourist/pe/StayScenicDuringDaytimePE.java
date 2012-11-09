@@ -82,7 +82,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         }
     }
 
-    public void setNextMillOfDayUpdateEventStreams(Stream<NextMillOfDayUpdateEvent>[] nextMillOfDayUpdateEventStreams) {
+    public void setNextMillOfDayUpdateEventStreams(Stream<NextMillOfDayUpdateEvent>... nextMillOfDayUpdateEventStreams) {
         this.nextMillOfDayUpdateEventStreams = nextMillOfDayUpdateEventStreams;
     }
 
