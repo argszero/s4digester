@@ -46,7 +46,7 @@ public class TouristApp extends App {
             public List<String> get(SignalingEvent event) {
                 return Arrays.asList(event.getImsi());
             }
-        }, stayScenicDuringDaytimePE, stayScenicDuringNightPE);
+        }, stayScenicDuringDaytimePE, stayScenicDuringNightPE,createPE(HelloPE.class));
 
         //3. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出新增10天内白天满足该条件的天数小于5天的用户
