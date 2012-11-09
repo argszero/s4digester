@@ -90,7 +90,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     /**
      * TODO: 需要考虑Event乱序到达的情况
      */
-    private static class SingleImsiProcessor {
+    public static class SingleImsiProcessor {
 
         private Status lastStatus = new Status();
 
