@@ -86,12 +86,16 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         this.nextMillOfDayUpdateEventStreams = nextMillOfDayUpdateEventStreams;
     }
 
+
     /**
      * TODO: 需要考虑Event乱序到达的情况
      */
     private static class SingleImsiProcessor {
 
         private Status lastStatus = new Status();
+
+        public SingleImsiProcessor() {
+        }
 
         /**
          * 强制检查是否复合条件。如果当前还不符合3个小时，但还在景区，而且到18:00不离开就满3个小时，也算符合条件。

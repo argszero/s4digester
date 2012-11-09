@@ -93,6 +93,9 @@ public class StayScenicDuringNightPE extends ProcessingElement {
 
         private Status lastStatus = new Status();
 
+        public SingleImsiProcessor() {
+        }
+
         /**
          * 强制检查是否复合条件。如果当前还不符合5个小时，但还在景区，而且到8:00不离开就满5个小时，也算符合条件。
          *
