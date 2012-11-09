@@ -32,23 +32,29 @@ public class JoinAndPrintPE extends ProcessingElement {
 
     public void onEvent(AgedImsiListEvent event) {
         //对于同一个age，可能由多个PE分批发过来
-        long lastAge = event.getLastAge();
+        String imsi = event.getImsi();
+        boolean matches = event.isMatches();
         synchronized (join) {
-            if (join.age == -1 || join.age < lastAge) {
-                // 如果之前没有数据，或者新的age开始了，则清空之前的数据
-                join.daytimeSet.clear();
-                join.nightSet.clear();
-                join.age = lastAge;
-            }
+            boolean isUpdated = false;
             if (event instanceof Daytime5In10Event) {
-                join.daytimeSet.addAll(event.getImsiList());
+                if (matches) {
+                    isUpdated = join.daytimeSet.add(imsi);
+                } else {
+                    isUpdated = join.daytimeSet.remove(imsi);
+                }
             } else {
-                join.nightSet.addAll(event.getImsiList());
+                if (matches) {
+                    isUpdated = join.nightSet.add(imsi);
+                } else {
+                    isUpdated = join.nightSet.remove(imsi);
+                }
             }
-            Collection<String> joins = CollectionUtils.intersection(join.daytimeSet, join.nightSet);
-            for (String imsi : joins) {
-                if (isLangOnline(imsi)) {
-                    logger.info(imsi);
+            if (isUpdated) {
+                Collection<String> joins = CollectionUtils.intersection(join.daytimeSet, join.nightSet);
+                for (String joinImsi : joins) {
+                    if (isLangOnline(joinImsi)) {
+                        logger.info(joinImsi);
+                    }
                 }
             }
         }

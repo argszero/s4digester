@@ -37,7 +37,7 @@ public class TouristApp extends App {
         //      即：Stream[Event[StayScenicDuringNightEvent]]
         //   PE根据用户imsi分发，保证同一个imsi会由同一个PE接收
 
-        StayScenicDuringDaytimePE stayScenicDuringDaytimePE = new StayScenicDuringDaytimePE();
+        StayScenicDuringNightPE stayScenicDuringDaytimePE = new StayScenicDuringNightPE();
         StayScenicDuringNightPE stayScenicDuringNightPE = new StayScenicDuringNightPE();
         createInputStream("Signaling", new KeyFinder<SignalingEvent>() {
             @Override
@@ -57,8 +57,8 @@ public class TouristApp extends App {
         }, daytime5In10PE);
         stayScenicDuringDaytimePE.setStreams(stayScenicDuringDaytime);
         //当白天统计周期变更（新的一天到来时），需要通知所有的daytime5In10PE，重新计算一下十天前符合条件的用户是否还继续符合条件
-        Stream<DaytimeAgeUpdateEvent> ageUpdateStream = createInputStream("AgeUpdateStream", daytime5In10PE);
-        daytime5In10PE.setAgeUpdateStreams(ageUpdateStream);
+        Stream<DaytimeAgeUpdateEvent> daytimeAgeUpdateStream = createInputStream("DaytimeAgeUpdate", daytime5In10PE);
+        daytime5In10PE.setAgeUpdateStreams(daytimeAgeUpdateStream);
 
 
         //4. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
@@ -70,7 +70,10 @@ public class TouristApp extends App {
                 return Arrays.asList(event.getImsi());
             }
         }, night5In10PE);
-        stayScenicDuringNightPE.setStream(stayScenicDuringNight);
+        stayScenicDuringNightPE.setStreams(stayScenicDuringNight);
+        //当晚上统计周期变更（新的一天到来时），需要通知所有的night5In10PE，重新计算一下十天前符合条件的用户是否还继续符合条件
+        Stream<NightAgeUpdateEvent> nightAgeUpdateStream = createInputStream("NightAgeUpdate", night5In10PE);
+        night5In10PE.setAgeUpdateStreams(nightAgeUpdateStream);
 
         //5. PE[JoinAndPrintPE]同时接收stayScenicDuringDaytime和stayScenicDuringNight。
         //   取交集，并根据知识库的信息过滤掉在网时长不超过3个月的用户，然后输出
@@ -89,6 +92,15 @@ public class TouristApp extends App {
             }
         }, joinAndPrintPE);
         night5In10PE.setStreams(night5In10);
+
+
+        //创建一个最新 NextMillOfDayUpdateEvent 的流
+        // StayScenicDuringDaytimePE（每当最新的event时间超过18点时）。StayScenicDuringNightPE（每当最新的event时间超过8点时）向这个流利发送数据
+        // StayScenicDuringDaytimePE(检查所有在白天公园的用户，是否符合3个小时的条件)。StayScenicDuringNightPE(检查所有在晚上公园的用户，是否符合5个小时的条件)接收发送数据
+        //数据比较少，就不需要白天只接受白天数据，晚上只接收晚上数据了，一起发送就可以了
+        Stream<NextMillOfDayUpdateEvent> nextMillOfDayUpdateEventStream = createInputStream("NextMillOfDayUpdate", stayScenicDuringDaytimePE, stayScenicDuringNightPE);
+        stayScenicDuringDaytimePE.setNextMillOfDayUpdateEventStreams(new Stream<NextMillOfDayUpdateEvent>[]{nextMillOfDayUpdateEventStream});
+        stayScenicDuringNightPE.setNextMillOfDayUpdateEventStreams(nextMillOfDayUpdateEventStream);
         logger.info("Finish init TouristApp");
     }
 

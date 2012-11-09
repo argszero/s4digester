@@ -101,6 +101,7 @@ public class Daytime5In10PE extends ProcessingElement {
             Daytime5In10Event event = new Daytime5In10Event();
             event.setImsi(imsi);
             event.setMatches(matchDays > 5);
+            event.setToAge(daysCaches[daysCaches.length-1].age);
             emit(event, streams);
         }
     }
