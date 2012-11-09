@@ -18,6 +18,7 @@
 
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import org.apache.s4.base.Event;
 import org.apache.s4.core.ProcessingElement;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class HelloPE extends ProcessingElement {
      * This method is called upon a new Event on an incoming stream
      */
     public void onEvent(Event event) {
-       logger.trace("receive event: {} ",event.toString());
+       logger.trace("receive event: {} ",new Gson().toJson(event));
         System.out.println("Hello ");
         seen = true;
     }

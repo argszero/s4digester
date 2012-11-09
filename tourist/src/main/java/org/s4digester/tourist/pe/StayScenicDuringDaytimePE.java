@@ -1,5 +1,6 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import org.apache.commons.collections.functors.InstantiateFactory;
 import org.apache.commons.collections.map.DefaultedMap;
 import org.apache.s4.core.ProcessingElement;
@@ -47,7 +48,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
 
     public void onEvent(SignalingEvent event) {
         if (logger.isTraceEnabled()) {
-            logger.trace("receive Signaling:{}", event.toString());
+            logger.trace("receive Signaling:{}", new Gson().toJson(event));
         }
         long eventAge18 = getAge18(event.getTime());
         if (eventAge18 > next18Age) {
@@ -64,7 +65,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         stayScenicDuringDaytimeEvent = processor.check(event);
         if (stayScenicDuringDaytimeEvent != null) {
             if (logger.isTraceEnabled()) {
-                logger.trace("emit event: {}",stayScenicDuringDaytimeEvent.toString());
+                logger.trace("emit event: {}", new Gson().toJson(stayScenicDuringDaytimeEvent));
             }
             emit(stayScenicDuringDaytimeEvent, streams);
         }
@@ -152,7 +153,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                         lastStatus.isInside = isInsideNow;
                     }
                     if (logger.isTraceEnabled()) {
-                        logger.trace("imsi[{}] stayTimeOfToday[{}]",event.getImsi(),lastStatus.stayTimeOfToday);
+                        logger.trace("imsi[{}] stayTimeOfToday[{}]", event.getImsi(), lastStatus.stayTimeOfToday);
                     }
                     if (lastStatus.stayTimeOfToday > 3 * 60 * 60 * 1000) {
                         StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = new StayScenicDuringDaytimeEvent();

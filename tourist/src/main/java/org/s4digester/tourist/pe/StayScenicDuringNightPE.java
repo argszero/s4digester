@@ -1,5 +1,6 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import org.apache.commons.collections.functors.InstantiateFactory;
 import org.apache.commons.collections.map.DefaultedMap;
 import org.apache.s4.core.ProcessingElement;
@@ -47,7 +48,7 @@ public class StayScenicDuringNightPE extends ProcessingElement {
 
     public void onEvent(SignalingEvent event) {
         if (logger.isTraceEnabled()) {
-            logger.trace("receive Signaling:[{}]", event.toString());
+            logger.trace("receive Signaling:[{}]", new Gson().toJson(event));
         }
         long eventAge8 = getAge8(event.getTime());
         if (eventAge8 > next8Age) {
@@ -64,7 +65,7 @@ public class StayScenicDuringNightPE extends ProcessingElement {
         stayScenicDuringNightEvent = processor.check(event);
         if (stayScenicDuringNightEvent != null) {
             if (logger.isTraceEnabled()) {
-                logger.trace("emit event: {}", stayScenicDuringNightEvent.toString());
+                logger.trace("emit event: {}", new Gson().toJson(stayScenicDuringNightEvent));
             }
             emit(stayScenicDuringNightEvent, streams);
         }
