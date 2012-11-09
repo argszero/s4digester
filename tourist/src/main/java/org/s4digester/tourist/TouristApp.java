@@ -39,8 +39,8 @@ public class TouristApp extends App {
         //      即：Stream[Event[StayScenicDuringNightEvent]]
         //   PE根据用户imsi分发，保证同一个imsi会由同一个PE接收
 
-        StayScenicDuringDaytimePE stayScenicDuringDaytimePE = new StayScenicDuringDaytimePE();
-        StayScenicDuringNightPE stayScenicDuringNightPE = new StayScenicDuringNightPE();
+        StayScenicDuringDaytimePE stayScenicDuringDaytimePE = createPE(StayScenicDuringDaytimePE.class);
+        StayScenicDuringNightPE stayScenicDuringNightPE = createPE(StayScenicDuringNightPE.class);
         createInputStream("Signaling", new KeyFinder<SignalingEvent>() {
             @Override
             public List<String> get(SignalingEvent event) {
@@ -50,7 +50,7 @@ public class TouristApp extends App {
 
         //3. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出新增10天内白天满足该条件的天数小于5天的用户
-        Daytime5In10PE daytime5In10PE = new Daytime5In10PE();
+        Daytime5In10PE daytime5In10PE = createPE(Daytime5In10PE.class);
         Stream<StayScenicDuringDaytimeEvent> stayScenicDuringDaytime = createInputStream("StayDuringDaytime", new KeyFinder<StayScenicDuringDaytimeEvent>() {
             @Override
             public List<String> get(StayScenicDuringDaytimeEvent event) {
@@ -65,7 +65,7 @@ public class TouristApp extends App {
 
         //4. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出新增10天内白天满足该条件的天数小于5天的用户
-        Night5In10PE night5In10PE = new Night5In10PE();
+        Night5In10PE night5In10PE = createPE(Night5In10PE.class);
         Stream<StayScenicDuringNightEvent> stayScenicDuringNight = createInputStream("StayDuringNight", new KeyFinder<StayScenicDuringNightEvent>() {
             @Override
             public List<String> get(StayScenicDuringNightEvent event) {
@@ -79,7 +79,7 @@ public class TouristApp extends App {
 
         //5. PE[JoinAndPrintPE]同时接收stayScenicDuringDaytime和stayScenicDuringNight。
         //   取交集，并根据知识库的信息过滤掉在网时长不超过3个月的用户，然后输出
-        JoinAndPrintPE joinAndPrintPE = new JoinAndPrintPE();
+        JoinAndPrintPE joinAndPrintPE = createPE(JoinAndPrintPE.class);
         Stream<Daytime5In10Event> daytime5In10 = createInputStream("Daytime5In10", new KeyFinder<Daytime5In10Event>() {
             @Override
             public List<String> get(Daytime5In10Event event) {
