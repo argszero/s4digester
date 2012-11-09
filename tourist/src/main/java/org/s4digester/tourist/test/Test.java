@@ -23,8 +23,9 @@ public class Test {
         System.out.println(trans("A,2012-01-01 08:00:00,tourist,tourist"));
         Socket socket = new Socket("10.1.253.24", 15000);
         OutputStream out = socket.getOutputStream();
-        IOUtils.write(trans("A,2012-01-01 08:00:00,tourist,tourist"), out);
-        IOUtils.write(trans("A,2012-01-01 10:00:00,home,home"), out);
+        IOUtils.write(trans("A,2012-01-01 08:00:00,tourist,tourist\r\n"), out);
+        IOUtils.write(trans("A,2012-01-01 10:00:00,home,home\r\n"), out);
+        IOUtils.write(trans("C,2012-01-01 10:00:00,home,home\r\n"), out);
         out.close();
         socket.close();
     }
