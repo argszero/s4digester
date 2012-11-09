@@ -17,6 +17,8 @@ import java.util.List;
  * 1：每天8:00-18:00在景区停留时长超过3小时天数小于5天
  * 2：每天18:00到次日8:00在景区停留超过5小时小于5天
  * 3: 在网时长超过3个月
+ *
+ * //注意：流的名称不能大于20个字符，否则status命令会报错
  */
 public class TouristApp extends App {
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -49,7 +51,7 @@ public class TouristApp extends App {
         //3. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出新增10天内白天满足该条件的天数小于5天的用户
         Daytime5In10PE daytime5In10PE = new Daytime5In10PE();
-        Stream<StayScenicDuringDaytimeEvent> stayScenicDuringDaytime = createInputStream("StayScenicDuringDaytime", new KeyFinder<StayScenicDuringDaytimeEvent>() {
+        Stream<StayScenicDuringDaytimeEvent> stayScenicDuringDaytime = createInputStream("StayDuringDaytime", new KeyFinder<StayScenicDuringDaytimeEvent>() {
             @Override
             public List<String> get(StayScenicDuringDaytimeEvent event) {
                 return Arrays.asList(event.getImsi());
@@ -64,7 +66,7 @@ public class TouristApp extends App {
         //4. PE[Daytime5In10PE]接收白天在景区停留超过3小时的用户事件
         //   输出新增10天内白天满足该条件的天数小于5天的用户
         Night5In10PE night5In10PE = new Night5In10PE();
-        Stream<StayScenicDuringNightEvent> stayScenicDuringNight = createInputStream("StayScenicDuringNight", new KeyFinder<StayScenicDuringNightEvent>() {
+        Stream<StayScenicDuringNightEvent> stayScenicDuringNight = createInputStream("StayDuringNight", new KeyFinder<StayScenicDuringNightEvent>() {
             @Override
             public List<String> get(StayScenicDuringNightEvent event) {
                 return Arrays.asList(event.getImsi());
