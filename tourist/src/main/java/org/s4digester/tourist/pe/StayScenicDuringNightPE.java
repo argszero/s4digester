@@ -3,6 +3,7 @@ package org.s4digester.tourist.pe;
 import com.google.gson.Gson;
 import org.apache.commons.collections.functors.InstantiateFactory;
 import org.apache.commons.collections.map.DefaultedMap;
+import org.apache.commons.collections.map.LazyMap;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
 import org.s4digester.tourist.event.NextMillOfDayUpdateEvent;
@@ -24,7 +25,7 @@ import static org.s4digester.tourist.util.TimeUtil.getMillOfToday;
  */
 public class StayScenicDuringNightPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private Map<String, SingleImsiProcessor> processorMap = DefaultedMap.decorate(new HashMap<String, SingleImsiProcessor>(), InstantiateFactory.getInstance(SingleImsiProcessor.class, new Class[0], new Object[0]));
+    private Map<String, SingleImsiProcessor> processorMap = LazyMap.decorate(new HashMap<String, SingleImsiProcessor>(), InstantiateFactory.getInstance(SingleImsiProcessor.class, new Class[0], new Object[0]));
     private Stream<StayScenicDuringNightEvent>[] streams;
     //如果用户1点进入景区， 10点离开。如何在8:00时判断用户符合条件？
     // 因此，对于所有信令，一旦到达或超过8:00，就说统计周期变更，需要检测用户是不是符合条件了
