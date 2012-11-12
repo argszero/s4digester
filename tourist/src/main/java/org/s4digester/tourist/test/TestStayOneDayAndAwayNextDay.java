@@ -14,7 +14,7 @@ import static org.s4digester.tourist.test.TestUtils.trans;
  *
  * 预期结果：只有一条Daytime5In10PE - receive StayScenicDuringDaytimeEvent
  */
-public class TestStayOneDayAndAwayOneDay {
+public class TestStayOneDayAndAwayNextDay {
     public static void main(String[] args) throws IOException, ParseException {
         Socket socket = new Socket("10.1.253.24", 15000);
         OutputStream out = socket.getOutputStream();
