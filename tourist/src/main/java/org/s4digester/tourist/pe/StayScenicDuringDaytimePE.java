@@ -124,12 +124,12 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         public StayScenicDuringDaytimeEvent forceCheck(String imsi, long eventTime, boolean inside) {
             synchronized (lastStatus) {
                 StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = null;
-                if (lastStatus.stayTimeOfToday >= 3 * 60 * 60 * 1000 && lastStatus.isInside && (lastStatus.stayTimeOfToday + (18 * 60 * 60 * 1000 - getMillOfToday(lastStatus.eventTime))) >= 3 * 60 * 60 * 1000) {
+                if (lastStatus.stayTimeOfToday >= 3 * 60 * 60 * 1000 && lastStatus.isInside && (lastStatus.stayTimeOfToday + (18 * 60 * 60 * 1000 - getMillOfToday(lastStatus.getEventTime()))) >= 3 * 60 * 60 * 1000) {
                     stayScenicDuringDaytimeEvent = new StayScenicDuringDaytimeEvent();
-                    stayScenicDuringDaytimeEvent.setAge(getAge(lastStatus.eventTime));
+                    stayScenicDuringDaytimeEvent.setAge(getAge(lastStatus.getEventTime()));
                     stayScenicDuringDaytimeEvent.setImsi(imsi);
                 }
-                lastStatus.eventTime = eventTime;
+                lastStatus.setEventTime(eventTime);
                 lastStatus.isInside = inside;
                 lastStatus.stayTimeOfToday = 0;
                 return stayScenicDuringDaytimeEvent;
@@ -139,25 +139,25 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         public StayScenicDuringDaytimeEvent check(SignalingEvent event) {
             boolean isInsideNow = isInside(event);
             synchronized (lastStatus) {
-                if (isNewCircle(lastStatus.eventTime, event.getSignalingTime())) { //如果是新的统计周期，则清空
+                if (isNewCircle(lastStatus.getEventTime(), event.getSignalingTime())) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
-                        logger.trace("new circle:[{} - {}]", getAge18(lastStatus.eventTime), getAge18(event.getSignalingTime()));
+                        logger.trace("new circle:[{} - {}]", getAge18(lastStatus.getEventTime()), getAge18(event.getSignalingTime()));
                     }
                     //首先判断老的周期是不是复合条件
                     StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = forceCheck(event.getImsi(), event.getSignalingTime(), isInsideNow);
                     return stayScenicDuringDaytimeEvent;
                 } else {
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
-                        lastStatus.eventTime = event.getSignalingTime();
+                        lastStatus.setEventTime(event.getSignalingTime());
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
-                        lastStatus.eventTime = event.getSignalingTime();
+                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.getEventTime());
+                        lastStatus.setEventTime(event.getSignalingTime());
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
-                        lastStatus.eventTime = event.getSignalingTime();
+                        lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
-                        lastStatus.eventTime = event.getSignalingTime();
+                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.getEventTime());
+                        lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     }
                     if (logger.isTraceEnabled()) {
@@ -165,7 +165,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                     }
                     if (lastStatus.stayTimeOfToday > 3 * 60 * 60 * 1000) {
                         StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = new StayScenicDuringDaytimeEvent();
-                        stayScenicDuringDaytimeEvent.setAge(getAge(lastStatus.eventTime));
+                        stayScenicDuringDaytimeEvent.setAge(getAge(lastStatus.getEventTime()));
                         stayScenicDuringDaytimeEvent.setImsi(event.getImsi());
                         return stayScenicDuringDaytimeEvent;
                     } else {
@@ -191,6 +191,14 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         private boolean isInside = false;
         private long eventTime = -1;
         private long stayTimeOfToday = 0;
+
+        public long getEventTime() {
+            return eventTime;
+        }
+
+        public void setEventTime(long eventTime) {
+            this.eventTime = eventTime;
+        }
     }
 
 }
