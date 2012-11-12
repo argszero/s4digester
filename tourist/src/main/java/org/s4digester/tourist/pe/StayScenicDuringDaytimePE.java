@@ -61,6 +61,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
             NextMillOfDayUpdateEvent nextMillOfDayUpdateEvent = new NextMillOfDayUpdateEvent();
             nextMillOfDayUpdateEvent.setAge(eventAge18);
             nextMillOfDayUpdateEvent.setMillOfDay(18 * 60 * 60 * 1000);
+            nextMillOfDayUpdateEvent.setEventTime(event.getTime());
             emit(nextMillOfDayUpdateEvent, nextMillOfDayUpdateEventStreams);
         }
         SingleImsiProcessor processor = processorMap.get(event.getImsi());
@@ -91,7 +92,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                 next18Age = event.getAge();
                 //每天18点定时执行，如果用户最后一次信令在景区，并且直到18点都没有信令，则认为用户一直在。
                 for (Map.Entry<String, SingleImsiProcessor> entry : processorMap.entrySet()) {
-                    StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = entry.getValue().forceCheck(entry.getKey(), event.getAge() * 24 * 60 * 60 * 1000 + event.getMillOfDay(), entry.getValue().lastStatus.isInside);
+                    StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = entry.getValue().forceCheck(entry.getKey(), event.getTime(), entry.getValue().lastStatus.isInside);
                     if (stayScenicDuringDaytimeEvent != null) {
                         emit(stayScenicDuringDaytimeEvent, streams);
                     }

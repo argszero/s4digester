@@ -12,6 +12,7 @@ import org.apache.s4.base.Event;
 public class NextMillOfDayUpdateEvent  extends Event {
     private long millOfDay;
     private long age;
+    private long eventTime;
 
     public long getMillOfDay() {
         return millOfDay;
@@ -27,5 +28,13 @@ public class NextMillOfDayUpdateEvent  extends Event {
 
     public void setAge(long age) {
         this.age = age;
+    }
+
+    public long getEventTime() {
+        return eventTime;
+    }
+
+    public void setEventTime(long eventTime) {
+        this.eventTime = eventTime;
     }
 }
