@@ -134,7 +134,7 @@ public class StayScenicDuringNightPE extends ProcessingElement {
             synchronized (lastStatus) {
                 if (isNewCircle(lastStatus.eventTime, event.getSignalingTime())) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
-                        logger.trace("new age");
+                        logger.trace("new circle:[{} - {}]", getAge8(lastStatus.eventTime), getAge8(event.getSignalingTime()));
                     }
                     //首先判断老的周期是不是复合条件
                     StayScenicDuringNightEvent stayScenicDuringNightEvent = forceCheckAndUpdateStatus(event.getImsi(), event.getSignalingTime(), isInsideNow);
@@ -171,7 +171,7 @@ public class StayScenicDuringNightPE extends ProcessingElement {
 
 
         private boolean isNewCircle(long lastTime, long time) {
-            return getAge8(lastTime) == getAge8(time);
+            return getAge8(lastTime) != getAge8(time);
         }
 
         private boolean isInside(SignalingEvent event) {
