@@ -48,6 +48,18 @@ public class Night5In10PE extends ProcessingElement {
 
     public void onEvent(StayScenicDuringNightEvent event) {
         DaysCache daysCache = daysCaches[daysCaches.length - 1];//大多数情况下，即最后一天
+        if (daysCache == null) { //第一次访问，做初始化
+            synchronized (daysCaches) {
+                daysCache = daysCaches[daysCaches.length - 1];
+                if (daysCache == null) {
+                    for (int i = 0; i < daysCaches.length - 1; i++) {
+                        daysCache = new DaysCache();
+                        daysCache.setAge(event.getAge() + daysCaches.length - 1 - i);
+                        daysCaches[i] = daysCache;
+                    }
+                }
+            }
+        }
         if (event.getAge() == daysCache.getAge()) {
             if (daysCache.add(event.getImsi())) {//如果新增，则重新发出所有的复合条件的imsi
                 checkAndEmit(event.getImsi());
