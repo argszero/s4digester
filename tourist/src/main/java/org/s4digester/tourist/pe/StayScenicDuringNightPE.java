@@ -114,19 +114,19 @@ public class StayScenicDuringNightPE extends ProcessingElement {
          */
         public StayScenicDuringNightEvent forceCheckAndUpdateStatus(String imsi, long eventTime, boolean inside) {
             synchronized (lastStatus) {
+                StayScenicDuringNightEvent stayScenicDuringNightEvent = null;
                 if (lastStatus.stayTimeOfToday < 5 * 60 * 60 * 1000
                         && lastStatus.isInside
                         && (lastStatus.stayTimeOfToday + (8 * 60 * 60 * 1000 - getMillOfToday(lastStatus.eventTime))) >= 5 * 60 * 60 * 1000) {
-                    StayScenicDuringNightEvent stayScenicDuringNightEvent = new StayScenicDuringNightEvent();
+                    stayScenicDuringNightEvent = new StayScenicDuringNightEvent();
                     stayScenicDuringNightEvent.setAge(getAge8(lastStatus.eventTime));
                     stayScenicDuringNightEvent.setImsi(imsi);
-                    lastStatus.eventTime = eventTime;
-                    lastStatus.isInside = inside;
-                    lastStatus.stayTimeOfToday = 0;
-                    return stayScenicDuringNightEvent;
                 }
+                lastStatus.eventTime = eventTime;
+                lastStatus.isInside = inside;
+                lastStatus.stayTimeOfToday = 0;
+                return stayScenicDuringNightEvent;
             }
-            return null;
         }
 
         public StayScenicDuringNightEvent check(SignalingEvent event) {

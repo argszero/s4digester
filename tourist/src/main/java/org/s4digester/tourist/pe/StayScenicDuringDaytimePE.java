@@ -123,17 +123,17 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
          */
         public StayScenicDuringDaytimeEvent forceCheck(String imsi, long eventTime, boolean inside) {
             synchronized (lastStatus) {
+                StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = null;
                 if (lastStatus.stayTimeOfToday >= 3 * 60 * 60 * 1000 && lastStatus.isInside && (lastStatus.stayTimeOfToday + (18 * 60 * 60 * 1000 - getMillOfToday(lastStatus.eventTime))) >= 3 * 60 * 60 * 1000) {
-                    StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = new StayScenicDuringDaytimeEvent();
+                    stayScenicDuringDaytimeEvent = new StayScenicDuringDaytimeEvent();
                     stayScenicDuringDaytimeEvent.setAge(getAge(lastStatus.eventTime));
                     stayScenicDuringDaytimeEvent.setImsi(imsi);
-                    lastStatus.eventTime = eventTime;
-                    lastStatus.isInside = inside;
-                    lastStatus.stayTimeOfToday = 0;
-                    return stayScenicDuringDaytimeEvent;
                 }
+                lastStatus.eventTime = eventTime;
+                lastStatus.isInside = inside;
+                lastStatus.stayTimeOfToday = 0;
+                return stayScenicDuringDaytimeEvent;
             }
-            return null;
         }
 
         public StayScenicDuringDaytimeEvent check(SignalingEvent event) {
