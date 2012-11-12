@@ -1,5 +1,6 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.s4.core.ProcessingElement;
 import org.s4digester.tourist.event.AgedImsiListEvent;
@@ -31,7 +32,10 @@ public class JoinAndPrintPE extends ProcessingElement {
     }
 
     public void onEvent(AgedImsiListEvent event) {
-        //对于同一个age，可能由多个PE分批发过来
+        if (logger.isTraceEnabled()) {
+            logger.trace("receive AgedImsiListEvent:{}", new Gson().toJson(event));
+        }
+        //对于同一个age，可能由多个PE依次发过来
         String imsi = event.getImsi();
         boolean matches = event.isMatches();
         synchronized (join) {

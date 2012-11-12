@@ -1,11 +1,14 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
 import org.s4digester.tourist.event.Night5In10Event;
 import org.s4digester.tourist.event.NightAgeUpdateEvent;
 import org.s4digester.tourist.event.Night5In10Event;
 import org.s4digester.tourist.event.StayScenicDuringNightEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -14,6 +17,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *  晚上10天内满足条件大于5天的用户
  */
 public class Night5In10PE extends ProcessingElement {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     DaysCache[] daysCaches = new DaysCache[10];
     private Stream<Night5In10Event>[] streams;
     private Stream<NightAgeUpdateEvent>[] ageUpdateStream;
@@ -47,6 +51,9 @@ public class Night5In10PE extends ProcessingElement {
     }
 
     public void onEvent(StayScenicDuringNightEvent event) {
+        if (logger.isTraceEnabled()) {
+            logger.trace("receive StayScenicDuringNightEvent:{}", new Gson().toJson(event));
+        }
         DaysCache daysCache = daysCaches[daysCaches.length - 1];//大多数情况下，即最后一天
         if (daysCache == null) { //第一次访问，做初始化
             synchronized (daysCaches) {
