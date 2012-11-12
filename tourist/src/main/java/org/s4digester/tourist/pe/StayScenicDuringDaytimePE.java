@@ -53,7 +53,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         if (logger.isTraceEnabled()) {
             logger.trace("receive Signaling:{}", new Gson().toJson(event));
         }
-        long eventAge18 = getAge18(event.getTime());
+        long eventAge18 = getAge18(event.getSignalingTime());
         if (eventAge18 > next18Age) {
             if (logger.isTraceEnabled()) {
                 logger.trace("new age:[{} - {}]", next18Age, eventAge18);
@@ -142,25 +142,25 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         public StayScenicDuringDaytimeEvent check(SignalingEvent event) {
             boolean isInsideNow = isInside(event);
             synchronized (lastStatus) {
-                if (isNewCircle(lastStatus.eventTime, event.getTime())) { //如果是新的统计周期，则清空
+                if (isNewCircle(lastStatus.eventTime, event.getSignalingTime())) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
                         logger.trace("new age");
                     }
                     //首先判断老的周期是不是复合条件
-                    StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = forceCheck(event.getImsi(), event.getTime(), isInsideNow);
+                    StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = forceCheck(event.getImsi(), event.getSignalingTime(), isInsideNow);
                     return stayScenicDuringDaytimeEvent;
                 } else {
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
-                        lastStatus.eventTime = event.getTime();
+                        lastStatus.eventTime = event.getSignalingTime();
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区
-                        lastStatus.stayTimeOfToday += (event.getTime() - lastStatus.eventTime);
-                        lastStatus.eventTime = event.getTime();
+                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
+                        lastStatus.eventTime = event.getSignalingTime();
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
-                        lastStatus.eventTime = event.getTime();
+                        lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += (event.getTime() - lastStatus.eventTime);
-                        lastStatus.eventTime = event.getTime();
+                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
+                        lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     }
                     if (logger.isTraceEnabled()) {

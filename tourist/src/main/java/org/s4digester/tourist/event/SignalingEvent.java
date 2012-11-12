@@ -7,7 +7,7 @@ import org.apache.s4.base.Event;
  */
 public class SignalingEvent extends Event {
     private String imsi;
-    private long time;
+    private long signalingTime;
     private String loc;
     private String cell;
 
@@ -20,12 +20,12 @@ public class SignalingEvent extends Event {
         this.imsi = imsi;
     }
 
-    public long getTime() {
-        return time;
+    public long getSignalingTime() {
+        return signalingTime;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setSignalingTime(long signalingTime) {
+        this.signalingTime = signalingTime;
     }
 
     public String getLoc() {
