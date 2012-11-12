@@ -2,7 +2,6 @@ package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
 import org.apache.commons.collections.functors.InstantiateFactory;
-import org.apache.commons.collections.map.DefaultedMap;
 import org.apache.commons.collections.map.LazyMap;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
@@ -12,13 +11,11 @@ import org.s4digester.tourist.event.StayScenicDuringDaytimeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.s4digester.tourist.util.TimeUtil.getAge;
 import static org.s4digester.tourist.util.TimeUtil.getMillOfToday;
 
@@ -40,6 +37,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     @Override
     protected void onCreate() {
         logger.info("create StayScenicDuringDaytimePE");
+        logger.info(format("ZONE_OFFSET:%d", Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
     }
 
     @Override
@@ -77,21 +75,17 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     }
 
     public static long getAge18(long eventTime) {
-        try {
-            System.out.println(Calendar.getInstance().get(Calendar.ZONE_OFFSET));
-            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("1970-01-01 00:00:00").getTime());
-            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(0)));
-            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("1970-01-01 08:00:00").getTime());
-        } catch (ParseException e) {
-        }
+        System.out.println(eventTime);
         long age = getAge(eventTime);
+        System.out.println(age);
         long millOfToday = getMillOfToday(eventTime);
+        System.out.println(millOfToday);
         return millOfToday <= 18 * 60 * 60 * 1000 ? age : age + 1;
     }
 
     public static void main(String[] args) {
-        System.out.println( getAge18(1352686915296L));
-        System.out.println( getAge18(1352686915342L));
+        System.out.println(getAge18(1352686915296L));
+        System.out.println(getAge18(1352686915342L));
     }
 
     public void onEvent(NextMillOfDayUpdateEvent event) {
