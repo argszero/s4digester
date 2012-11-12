@@ -75,18 +75,11 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     }
 
     public static long getAge18(long eventTime) {
-        System.out.println(eventTime);
         long age = getAge(eventTime);
-        System.out.println(age);
         long millOfToday = getMillOfToday(eventTime);
-        System.out.println(millOfToday);
         return millOfToday <= 18 * 60 * 60 * 1000 ? age : age + 1;
     }
 
-    public static void main(String[] args) {
-        System.out.println(getAge18(1352686915296L));
-        System.out.println(getAge18(1352686915342L));
-    }
 
     public void onEvent(NextMillOfDayUpdateEvent event) {
         if (event.getMillOfDay() == 18 * 60 * 60 * 1000) {
