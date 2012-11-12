@@ -61,7 +61,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
             NextMillOfDayUpdateEvent nextMillOfDayUpdateEvent = new NextMillOfDayUpdateEvent();
             nextMillOfDayUpdateEvent.setAge(eventAge18);
             nextMillOfDayUpdateEvent.setMillOfDay(18 * 60 * 60 * 1000);
-            nextMillOfDayUpdateEvent.setEventTime(event.getTime());
+            nextMillOfDayUpdateEvent.setEventTime(event.getSignalingTime());
             emit(nextMillOfDayUpdateEvent, nextMillOfDayUpdateEventStreams);
         }
         SingleImsiProcessor processor = processorMap.get(event.getImsi());
