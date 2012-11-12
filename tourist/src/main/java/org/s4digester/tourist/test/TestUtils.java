@@ -20,4 +20,11 @@ public class TestUtils {
         split[1] = String.valueOf(date.getTime() + 8 * 60 * 60 * 1000);
         return StringUtils.join(split, ",");
     }
+
+    public static String trans(int i, String s) throws ParseException {
+        String[] split = s.split(",");
+        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(split[1]);
+        split[1] = String.valueOf(date.getTime() + 8 * 60 * 60 * 1000 + i);
+        return StringUtils.join(split, ",");
+    }
 }

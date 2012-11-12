@@ -60,7 +60,7 @@ public class JoinAndPrintPE extends ProcessingElement {
                 sb.append("\n");
                 for (String joinImsi : joins) {
                     if (isLangOnline(joinImsi)) {
-                        sb.append("joinImsi\n");
+                        sb.append(joinImsi+"\n");
                     }
                 }
                 logger.info(sb.toString());
