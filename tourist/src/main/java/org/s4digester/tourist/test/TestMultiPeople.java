@@ -16,10 +16,13 @@ public class TestMultiPeople {
     public static void main(String[] args) throws IOException, ParseException {
         Socket socket = new Socket("10.1.253.24", 15000);
         OutputStream out = socket.getOutputStream();
-        for (int days = 1; days < 2; days++) {
-            noTourist(1, days, out);
-//            for (int i = 0; i <= 101; i++) {
-//                if (i == 100 || i == 300 || i == 500) {
+        for (int days = 1; days < 8; days++) {
+//            noTourist(1, days, out);
+//            tourist(2, days, out);
+//            noTourist(3, days, out);
+            tourist(4, days, out);
+//            for (int i = 0; i <= 10; i++) {
+//                if (i == 5 || i == 7 || i == 4) {
 //                    tourist(i, days, out);
 //                } else {
 //                    noTourist(i, days, out);

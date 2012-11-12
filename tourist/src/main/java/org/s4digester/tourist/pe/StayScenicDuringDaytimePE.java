@@ -156,17 +156,21 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                     long start = last18Age * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000; //统计起点
                     long end = last18Age * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000; //统计终点
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
+                        logger.trace("imsi[{}] is not in scenic during [{}~{}]", new Object[]{event.getImsi(), lastStatus.getEventTime(), event.getSignalingTime()});
                         lastStatus.setEventTime(event.getSignalingTime());
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区。
                         // 为什么不是：Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start)？
                         // 假设signalingTime 为20点， lastTime为19点  min(18,20) - max(19,8) = 18-19 = -1
                         //这种情况下，应该为min(18,20) - min( max(19,8),18) = 0 才对
+                        logger.trace("imsi[{}] is in scenic during [{}~{}]", new Object[]{event.getImsi(), lastStatus.getEventTime(), event.getSignalingTime()});
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
+                        logger.trace("imsi[{}] is go into scenic during [{}~{}]", new Object[]{event.getImsi(), lastStatus.getEventTime(), event.getSignalingTime()});
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
+                        logger.trace("imsi[{}] is away from scenic during [{}~{}]", new Object[]{event.getImsi(), lastStatus.getEventTime(), event.getSignalingTime()});
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
