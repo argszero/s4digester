@@ -62,7 +62,7 @@ public class Daytime5In10PE extends ProcessingElement {
             synchronized (daysCaches) {
                 daysCache = daysCaches[daysCaches.length - 1];
                 if (daysCache == null) {
-                    for (int i = 0; i < daysCaches.length - 1; i++) {
+                    for (int i = 0; i < daysCaches.length; i++) {
                         daysCache = new DaysCache();
                         daysCache.setAge(event.getAge() + daysCaches.length - 1 - i);
                         daysCaches[i] = daysCache;

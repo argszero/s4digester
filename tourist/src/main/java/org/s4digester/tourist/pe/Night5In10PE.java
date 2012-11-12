@@ -5,7 +5,6 @@ import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
 import org.s4digester.tourist.event.Night5In10Event;
 import org.s4digester.tourist.event.NightAgeUpdateEvent;
-import org.s4digester.tourist.event.Night5In10Event;
 import org.s4digester.tourist.event.StayScenicDuringNightEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- *  晚上10天内满足条件大于5天的用户
+ * 晚上10天内满足条件大于5天的用户
  */
 public class Night5In10PE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -59,7 +58,7 @@ public class Night5In10PE extends ProcessingElement {
             synchronized (daysCaches) {
                 daysCache = daysCaches[daysCaches.length - 1];
                 if (daysCache == null) {
-                    for (int i = 0; i < daysCaches.length - 1; i++) {
+                    for (int i = 0; i < daysCaches.length; i++) {
                         daysCache = new DaysCache();
                         daysCache.setAge(event.getAge() + daysCaches.length - 1 - i);
                         daysCaches[i] = daysCache;
@@ -116,7 +115,7 @@ public class Night5In10PE extends ProcessingElement {
             }
             Night5In10Event event = new Night5In10Event();
             event.setImsi(imsi);
-            event.setToAge(daysCaches[daysCaches.length-1].age);
+            event.setToAge(daysCaches[daysCaches.length - 1].age);
             event.setMatches(matchDays > 5);
             emit(event, streams);
         }
