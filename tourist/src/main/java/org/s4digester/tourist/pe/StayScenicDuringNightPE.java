@@ -2,7 +2,6 @@ package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
 import org.apache.commons.collections.functors.InstantiateFactory;
-import org.apache.commons.collections.map.DefaultedMap;
 import org.apache.commons.collections.map.LazyMap;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
@@ -73,6 +72,7 @@ public class StayScenicDuringNightPE extends ProcessingElement {
         }
     }
 
+    //获取当前时间之后最近的8点的日期
     public static long getAge8(long eventTime) {
         long age = getAge(eventTime);
         long millOfToday = getMillOfToday(eventTime);
@@ -134,24 +134,28 @@ public class StayScenicDuringNightPE extends ProcessingElement {
         public StayScenicDuringNightEvent check(SignalingEvent event) {
             boolean isInsideNow = isInside(event);
             synchronized (lastStatus) {
-                if (isNewCircle(lastStatus.eventTime, event.getSignalingTime())) { //如果是新的统计周期，则清空
+                long last8Age = getAge8(lastStatus.eventTime);
+                long signaling8Age = getAge8(event.getSignalingTime());
+                if (last8Age != signaling8Age) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
                         logger.trace("new circle:[{} - {}]", getAge8(lastStatus.eventTime), getAge8(event.getSignalingTime()));
                     }
                     //首先判断老的周期是不是复合条件
                     StayScenicDuringNightEvent stayScenicDuringNightEvent = forceCheckAndUpdateStatus(event.getImsi(), event.getSignalingTime(), isInsideNow);
                     return stayScenicDuringNightEvent;
-                } else {
+                } else { //同一统计周期，last8Age==signaling8Age last18Age=2代表：1号8点~2号8点，统计周期应该为1号18点到2号8点
+                    long start = (last8Age - 1) * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000; //统计起点
+                    long end = last8Age * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000; //统计终点
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.eventTime = event.getSignalingTime();
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
+                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.eventTime, start);
                         lastStatus.eventTime = event.getSignalingTime();
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.eventTime);
+                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.eventTime, start);
                         lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     }

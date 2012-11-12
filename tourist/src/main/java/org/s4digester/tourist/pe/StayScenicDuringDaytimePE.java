@@ -75,6 +75,7 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         }
     }
 
+    //获取当前时间之后最近的18点的日期
     public static long getAge18(long eventTime) {
         long age = getAge(eventTime);
         long millOfToday = getMillOfToday(eventTime);
@@ -140,24 +141,28 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
         public StayScenicDuringDaytimeEvent check(SignalingEvent event) {
             boolean isInsideNow = isInside(event);
             synchronized (lastStatus) {
-                if (isNewCircle(lastStatus.getEventTime(), event.getSignalingTime())) { //如果是新的统计周期，则清空
+                long last18Age = getAge18(lastStatus.getEventTime());
+                long signaling18Age = getAge18(event.getSignalingTime());
+                if (last18Age != signaling18Age) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
                         logger.trace("new circle:[{} - {}]", getAge18(lastStatus.getEventTime()), getAge18(event.getSignalingTime()));
                     }
                     //首先判断老的周期是不是复合条件
                     StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = forceCheck(event.getImsi(), event.getSignalingTime(), isInsideNow);
                     return stayScenicDuringDaytimeEvent;
-                } else {
+                } else { //同一次统计周期  last18Age== signaling18Age  last18Age=2代表：1号18点~2号18点，统计周期应该为2号8点到2号18点
+                    long start = last18Age * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000; //统计起点
+                    long end = last18Age * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000; //统计终点
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.setEventTime(event.getSignalingTime());
-                    } else if (lastStatus.isInside && isInsideNow) { //一直在景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.getEventTime());
+                    } else if (lastStatus.isInside && isInsideNow) { //一直在景区。
+                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start);
                         lastStatus.setEventTime(event.getSignalingTime());
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += (event.getSignalingTime() - lastStatus.getEventTime());
+                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start);
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     }
@@ -175,11 +180,6 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                 }
 
             }
-        }
-
-
-        private boolean isNewCircle(long lastTime, long time) {
-            return getAge18(lastTime) != getAge18(time);
         }
 
         private boolean isInside(SignalingEvent event) {
