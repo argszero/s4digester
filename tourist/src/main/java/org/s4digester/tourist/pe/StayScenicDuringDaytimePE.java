@@ -12,6 +12,10 @@ import org.s4digester.tourist.event.StayScenicDuringDaytimeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,9 +77,21 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
     }
 
     public static long getAge18(long eventTime) {
+        try {
+            System.out.println(Calendar.getInstance().get(Calendar.ZONE_OFFSET));
+            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("1970-01-01 00:00:00").getTime());
+            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date(0)));
+            System.out.println(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("1970-01-01 08:00:00").getTime());
+        } catch (ParseException e) {
+        }
         long age = getAge(eventTime);
         long millOfToday = getMillOfToday(eventTime);
         return millOfToday <= 18 * 60 * 60 * 1000 ? age : age + 1;
+    }
+
+    public static void main(String[] args) {
+        System.out.println( getAge18(1352686915296L));
+        System.out.println( getAge18(1352686915342L));
     }
 
     public void onEvent(NextMillOfDayUpdateEvent event) {
