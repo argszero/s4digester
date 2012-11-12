@@ -55,11 +55,15 @@ public class JoinAndPrintPE extends ProcessingElement {
             }
             if (isUpdated) {
                 Collection<String> joins = CollectionUtils.intersection(join.daytimeSet, join.nightSet);
+                StringBuffer sb = new StringBuffer();
+                sb.append("Latest Tourist List:");
+                sb.append("\n");
                 for (String joinImsi : joins) {
                     if (isLangOnline(joinImsi)) {
-                        logger.info(joinImsi);
+                        sb.append("joinImsi\n");
                     }
                 }
+                logger.info(sb.toString());
             }
         }
     }
