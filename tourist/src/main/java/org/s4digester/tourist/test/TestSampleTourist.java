@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.s4digester.tourist.test.TestUtils.trans;
+
 /**
  * 测试刚好符合条件的景区游客：连续六天，每天早上8点到景区，11:00:01离开。下午18:00到景区，23:00:01离开。
  * 预期结果：
@@ -65,10 +67,5 @@ public class TestSampleTourist {
         socket.close();
     }
 
-    private static String trans(String s) throws ParseException {
-        String[] split = s.split(",");
-        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(split[1]);
-        split[1] = String.valueOf(date.getTime() + 8 * 60 * 60 * 1000);
-        return StringUtils.join(split,",");
-    }
+
 }
