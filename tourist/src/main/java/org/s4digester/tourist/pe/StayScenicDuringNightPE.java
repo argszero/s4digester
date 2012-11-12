@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static org.s4digester.tourist.util.TimeUtil.getAge;
 import static org.s4digester.tourist.util.TimeUtil.getMillOfToday;
 
@@ -149,13 +151,13 @@ public class StayScenicDuringNightPE extends ProcessingElement {
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.eventTime = event.getSignalingTime();
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区
-                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.eventTime, start);
+                        lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.eventTime, start), end);
                         lastStatus.eventTime = event.getSignalingTime();
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.eventTime, start);
+                        lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.eventTime, start), end);
                         lastStatus.eventTime = event.getSignalingTime();
                         lastStatus.isInside = isInsideNow;
                     }

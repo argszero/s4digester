@@ -15,6 +15,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.String.format;
 import static org.s4digester.tourist.util.TimeUtil.getAge;
 import static org.s4digester.tourist.util.TimeUtil.getMillOfToday;
@@ -156,13 +158,16 @@ public class StayScenicDuringDaytimePE extends ProcessingElement {
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.setEventTime(event.getSignalingTime());
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区。
-                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start);
+                        // 为什么不是：Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start)？
+                        // 假设signalingTime 为20点， lastTime为19点  min(18,20) - max(19,8) = 18-19 = -1
+                        //这种情况下，应该为min(18,20) - min( max(19,8),18) = 0 才对
+                        lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
-                        lastStatus.stayTimeOfToday += Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start);
+                        lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
                     }

@@ -1,8 +1,5 @@
 package org.s4digester.tourist;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created with IntelliJ IDEA.
  * User: shaoaq
@@ -12,7 +9,8 @@ import org.slf4j.LoggerFactory;
  */
 public class T {
     public static void main(String[] args) {
-        Logger logger = LoggerFactory.getLogger( T.class);
-        logger.info("sfdf");
+        long a = 0;
+        a += 100 -1;
+        System.out.println(a);
     }
 }
