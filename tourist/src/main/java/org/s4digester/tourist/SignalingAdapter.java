@@ -28,16 +28,18 @@ public class SignalingAdapter extends AdapterApp {
                     while (true) {
                         connectedSocket = serverSocket.accept();
                         in = new BufferedReader(new InputStreamReader(connectedSocket.getInputStream()));
-                        String line = in.readLine();
-                        String[] columns = line.split(",");
-                        System.out.println("read: " + line);
-                        if (columns.length > 3) {
-                            SignalingEvent event = new SignalingEvent();
-                            event.setImsi(columns[0]);
-                            event.setTime(Long.parseLong(columns[1]));
-                            event.setLoc(columns[2]);
-                            event.setCell(columns[3]);
-                            getRemoteStream().put(event);
+                        String line;
+                        while ((line = in.readLine())!=null){
+                            String[] columns = line.split(",");
+                            System.out.println("read: " + line);
+                            if (columns.length > 3) {
+                                SignalingEvent event = new SignalingEvent();
+                                event.setImsi(columns[0]);
+                                event.setTime(Long.parseLong(columns[1]));
+                                event.setLoc(columns[2]);
+                                event.setCell(columns[3]);
+                                getRemoteStream().put(event);
+                            }
                         }
                         connectedSocket.close();
                     }
