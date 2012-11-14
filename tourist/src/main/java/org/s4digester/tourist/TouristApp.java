@@ -25,7 +25,7 @@ import java.util.List;
  * <p/>
  * //注意：流的名称不能大于20个字符，否则status命令会报错
  */
-public class NewTouristApp extends App {
+public class TouristApp extends App {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
