@@ -7,10 +7,7 @@ import org.apache.s4.base.Event;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
-import org.s4digester.tourist.event.NextMillOfDayUpdateEvent;
-import org.s4digester.tourist.event.SignalingEvent;
-import org.s4digester.tourist.event.Stay4OneDayEvent;
-import org.s4digester.tourist.event.StayScenicDuringDaytimeEvent;
+import org.s4digester.tourist.event.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,37 +27,40 @@ import static org.s4digester.tourist.util.TimeUtil.*;
  * Time: 下午6:06
  * To change this template use File | Settings | File Templates.
  */
-public class Stay4OneDayPE extends ProcessingElement {
+public class StayHoursPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<String, SingleImsiProcessor> processorMap = LazyMap.decorate(new HashMap<String, SingleImsiProcessor>(), InstantiateFactory.getInstance(SingleImsiProcessor.class, new Class[0], new Object[0]));
-    private Stream<Stay4OneDayEvent>[] streams;
+    private Stream<StayHoursEvent>[] streams;
     //当前时间所属的统计周期结束时间所在的日期。
     //对于白天8~18的统计，到达这天的18点时要强制统计一下。 计算方法即当前时间之后最近的18点所在的日期
     //对于晚上18到第二天早上8点的统计，到达这天的8点后要强制统计一下。计算方法即当前时间之后最近的8点所在的日期
     private long endAge;
     //每天的固定时间点到了。在这个case中，每天的8点和18点都会接收到这个事件。
-    private Stream<NextMillOfDayUpdateEvent>[] nextMillOfDayUpdateEventStreams;
+    private Stream<AgeChangeEvent>[] ageChangeStreams;
 
     private final long start; //开始时间，比如白天统计开始时间为8点，即8*60*60*1000  ，晚上统计开始时间为18点，即18*60*60*1000
     private final long end;  //结束时间，比如白天统计结束时间为18点，即18*60*60*1000  ，晚上统计结束时间为8点，即8*60*60*1000
     private final long stayTime;//停留时间阀值 ，比如3个小时，即 3*60*60*1000
+    private String statisticsName;
 
-    public Stay4OneDayPE(App app, long start, long end, long stayTime) {
+    public StayHoursPE(App app, long start, long end, long stayTime,String statisticsName) {
         super(app);
         this.start = start;
         this.end = end;
         this.stayTime = stayTime;
+        this.statisticsName = statisticsName;
     }
 
     @Override
     protected void onCreate() {
-        logger.info("create Stay4OneDayPE[{}:{}~{}:{}]", new Object[]{getHour(start), getMinute(start), getHour(end), getMinute(end)});
+        setName(format("StayHoursPE[%d:%d~%d:%d > %d:%d]", getHour(start), getMinute(start), getHour(end), getMinute(end), getHour(stayTime), getMinute(stayTime)));
+        logger.info("create {}",statisticsName);
         logger.info(format("ZONE_OFFSET:%d", Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
     }
 
     @Override
     protected void onRemove() {
-        logger.info("remove Stay4OneDayPE[{}:{}~{}:{}]", new Object[]{getHour(start), getMinute(start), getHour(end), getMinute(end)});
+        logger.info("remove {}",statisticsName);
     }
 
     public void onEvent(SignalingEvent event) {
@@ -72,18 +72,18 @@ public class Stay4OneDayPE extends ProcessingElement {
             if (logger.isTraceEnabled()) {
                 logger.trace("new endAge:[{} -> {}]", endAge, eventAge);
             }
-            NextMillOfDayUpdateEvent nextMillOfDayUpdateEvent = new NextMillOfDayUpdateEvent();
-            nextMillOfDayUpdateEvent.setAge(eventAge);
-            nextMillOfDayUpdateEvent.setMillOfDay(end);
-            nextMillOfDayUpdateEvent.setEventTime(event.getSignalingTime());
-            emit(nextMillOfDayUpdateEvent, nextMillOfDayUpdateEventStreams);
+            AgeChangeEvent ageChangeEvent = new AgeChangeEvent();
+            ageChangeEvent.setAge(eventAge);
+            ageChangeEvent.setEventTime(event.getSignalingTime());
+            ageChangeEvent.setStatisticsName(statisticsName);
+            emit(ageChangeEvent, ageChangeStreams);
         }
         SingleImsiProcessor processor = processorMap.get(event.getImsi());
         processor.process(event, this, streams);
     }
 
-    public void onEvent(NextMillOfDayUpdateEvent event) {
-        if (event.getMillOfDay() == end) { //如果是当前的PE统计周期结束
+    public void onEvent(AgeChangeEvent event) {
+        if (statisticsName.equals(event.getStatisticsName())) { //如果是当前的PE统计周期结束
             if (endAge != event.getAge()) { //如果当前的age还没有更新（如果已经更新了则忽略)
                 endAge = event.getAge();
                 //统计周期结束，强制检查本统计周期内没有离开景区的用户。比如，对于白天的统计，用户8点进入景区，一直到晚上18点都没有其他信令。我们这个时候也认为用户已经够3个小时了。
@@ -101,11 +101,11 @@ public class Stay4OneDayPE extends ProcessingElement {
         super.emit(event, streamArray);
     }
 
-    public void setNextMillOfDayUpdateEventStreams(Stream<NextMillOfDayUpdateEvent>... nextMillOfDayUpdateEventStreams) {
-        this.nextMillOfDayUpdateEventStreams = nextMillOfDayUpdateEventStreams;
+    public void setAgeChangeStreams(Stream<AgeChangeEvent>... ageChangeStreams) {
+        this.ageChangeStreams = ageChangeStreams;
     }
 
-    public void setStreams(Stream<Stay4OneDayEvent>... streams) {
+    public void setStreams(Stream<StayHoursEvent>... streams) {
         this.streams = streams;
     }
 
@@ -117,7 +117,7 @@ public class Stay4OneDayPE extends ProcessingElement {
         private Logger logger = LoggerFactory.getLogger(getClass());
         private Status lastStatus = new Status();
 
-        public void process(SignalingEvent event, Stay4OneDayPE pe, Stream<Stay4OneDayEvent>[] streams) {
+        public void process(SignalingEvent event, StayHoursPE pe, Stream<StayHoursEvent>[] streams) {
             boolean isInsideNow = isInside(event);
             synchronized (lastStatus) {
                 long lastEndAge = getNextAge(lastStatus.getEventTime(), pe.end);
@@ -154,9 +154,10 @@ public class Stay4OneDayPE extends ProcessingElement {
                         logger.trace("imsi[{}],stayTimeOfToday[{}]", event.getImsi(), lastStatus.stayTimeOfToday);
                     }
                     if (lastStatus.stayTimeOfToday > pe.stayTime) {
-                        Stay4OneDayEvent stay4OneDayEvent = new Stay4OneDayEvent();
+                        StayHoursEvent stay4OneDayEvent = new StayHoursEvent();
                         stay4OneDayEvent.setEndAge(lastEndAge);
                         stay4OneDayEvent.setImsi(event.getImsi());
+                        stay4OneDayEvent.setStatisticsName(pe.statisticsName);
                         pe.emit(stay4OneDayEvent, streams);
                     }
                 }
@@ -169,15 +170,16 @@ public class Stay4OneDayPE extends ProcessingElement {
             return ("tourist".equals(event.getCell()));
         }
 
-        public void forceCheck(long eventTime, Stay4OneDayPE pe, Stream<Stay4OneDayEvent>[] streams, String imsi, boolean insideNow) {
+        public void forceCheck(long eventTime, StayHoursPE pe, Stream<StayHoursEvent>[] streams, String imsi, boolean insideNow) {
             synchronized (lastStatus) {
                 StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = null;
                 if (lastStatus.stayTimeOfToday <= pe.stayTime //未超过指定时间的（因为超过的已经发送过了）
                         && lastStatus.isInside  //最后一次出声时在景区（如果用户已经离开景区，也不需要计算了）
                         && (lastStatus.stayTimeOfToday + (pe.end - getMillOfToday(lastStatus.getEventTime()))) > pe.stayTime) { //TODO: 这里有问题，如果最后用户时间为23点，8点检查时怎么办？
-                    Stay4OneDayEvent stay4OneDayEvent = new Stay4OneDayEvent();
+                    StayHoursEvent stay4OneDayEvent = new StayHoursEvent();
                     stay4OneDayEvent.setEndAge(getNextAge(lastStatus.getEventTime(), pe.end));
                     stay4OneDayEvent.setImsi(imsi);
+                    stay4OneDayEvent.setStatisticsName(pe.statisticsName);
                     pe.emit(stay4OneDayEvent, streams);
                 }
                 lastStatus.setEventTime(eventTime);
@@ -186,7 +188,7 @@ public class Stay4OneDayPE extends ProcessingElement {
             }
 
 
-            Stay4OneDayEvent stay4OneDayEvent = null;
+            StayHoursEvent stay4OneDayEvent = null;
 
             if (stay4OneDayEvent != null) {
                 if (logger.isTraceEnabled()) {
