@@ -7,6 +7,7 @@ import org.s4digester.tourist.event.AgeChangeEvent;
 import org.s4digester.tourist.event.SignalingEvent;
 import org.s4digester.tourist.event.StayDaysEvent;
 import org.s4digester.tourist.event.StayHoursEvent;
+import org.s4digester.tourist.pe.HelloPE;
 import org.s4digester.tourist.pe.JoinAndPrintPE2;
 import org.s4digester.tourist.pe.StayDaysPE;
 import org.s4digester.tourist.pe.StayHoursPE;
@@ -74,7 +75,8 @@ public class TouristApp extends App {
         }, daytimeStayHoursPE, nightStayHoursPE);
 
         //除了以上输入处理流程以外,还需要向StayDaysPE，StayHoursPE通知统计周期变更事件，事件由 daytimeStayHoursPE，nightStayHoursPE在接收到新的统计周期的event时产生
-        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", daytimeStayDaysPE, nightStayDaysPE, daytimeStayHoursPE, nightStayHoursPE);
+//        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", daytimeStayDaysPE, nightStayDaysPE, daytimeStayHoursPE, nightStayHoursPE);
+        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", createPE(HelloPE.class));
         daytimeStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
         nightStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
 
