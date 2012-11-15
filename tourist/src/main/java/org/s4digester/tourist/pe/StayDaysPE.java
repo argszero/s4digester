@@ -55,7 +55,7 @@ public class StayDaysPE extends ProcessingElement {
         if (name.equals(event.getStatisticsName())) {
             long age = event.getAge();
             synchronized (daysCaches) {
-                DaysCache daysCache = daysCaches[daysCaches.length - 1];
+                DaysCache daysCache = getLatestDaysCache(event.getAge());
                 while (event.getAge() > daysCache.getAge()) {
                     Set<String> removedImsiSet = daysCaches[0].getImsiSet();
                     for (int i = 0; i < daysCaches.length - 1; i++) {
@@ -79,19 +79,7 @@ public class StayDaysPE extends ProcessingElement {
             if (logger.isTraceEnabled()) {
                 logger.trace("receive StayHoursEvent:{}", new Gson().toJson(event));
             }
-            DaysCache daysCache = daysCaches[daysCaches.length - 1];//大多数情况下，即最后一天
-            if (daysCache == null) { //第一次访问，做初始化
-                synchronized (daysCaches) {
-                    daysCache = daysCaches[daysCaches.length - 1];
-                    if (daysCache == null) {
-                        for (int i = 0; i < daysCaches.length; i++) {
-                            daysCache = new DaysCache();
-                            daysCache.setAge(event.getEndAge() + daysCaches.length - 1 - i);
-                            daysCaches[i] = daysCache;
-                        }
-                    }
-                }
-            }
+            DaysCache daysCache = getLatestDaysCache(event.getEndAge());
             if (event.getEndAge() == daysCache.getAge()) {
                 if (daysCache.add(event.getImsi())) {//如果新增，则重新发出所有的复合条件的imsi
                     checkAndEmit(event.getImsi());
@@ -124,6 +112,23 @@ public class StayDaysPE extends ProcessingElement {
 
             }
         }
+    }
+
+    private DaysCache getLatestDaysCache(long endAge) {
+        DaysCache daysCache = daysCaches[daysCaches.length - 1];//大多数情况下，即最后一天
+        if (daysCache == null) { //第一次访问，做初始化
+            synchronized (daysCaches) {
+                daysCache = daysCaches[daysCaches.length - 1];
+                if (daysCache == null) {
+                    for (int i = 0; i < daysCaches.length; i++) {
+                        daysCache = new DaysCache();
+                        daysCache.setAge(endAge + daysCaches.length - 1 - i);
+                        daysCaches[i] = daysCache;
+                    }
+                }
+            }
+        }
+        return daysCache;
     }
 
 //    private void emitNewAge(long newAge) {
