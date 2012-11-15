@@ -83,17 +83,17 @@ public class StayHoursPE extends ProcessingElement {
     }
 
     public void onEvent(AgeChangeEvent event) {
-//        if (statisticsName.equals(event.getStatisticsName())) { //如果是当前的PE统计周期结束
-//            if (endAge != event.getAge()) { //如果当前的age还没有更新（如果已经更新了则忽略)
-//                endAge = event.getAge();
-//                //统计周期结束，强制检查本统计周期内没有离开景区的用户。比如，对于白天的统计，用户8点进入景区，一直到晚上18点都没有其他信令。我们这个时候也认为用户已经够3个小时了。
-//                //TODO: 其实不应该等到18点后再检查，用户如果9点进入景区，12点之前都没有收到其他信令，则应该认为用户已经在景区停留3个小时了。
-//                for (Map.Entry<String, SingleImsiProcessor> entry : processorMap.entrySet()) {
-//                    //我们认为
+        if (statisticsName.equals(event.getStatisticsName())) { //如果是当前的PE统计周期结束
+            if (endAge != event.getAge()) { //如果当前的age还没有更新（如果已经更新了则忽略)
+                endAge = event.getAge();
+                //统计周期结束，强制检查本统计周期内没有离开景区的用户。比如，对于白天的统计，用户8点进入景区，一直到晚上18点都没有其他信令。我们这个时候也认为用户已经够3个小时了。
+                //TODO: 其实不应该等到18点后再检查，用户如果9点进入景区，12点之前都没有收到其他信令，则应该认为用户已经在景区停留3个小时了。
+                for (Map.Entry<String, SingleImsiProcessor> entry : processorMap.entrySet()) {
+                    //我们认为
 //                    entry.getValue().forceCheck(event.getEventTime(), this, streams, entry.getKey(), entry.getValue().lastStatus.isInside);
-//                }
-//            }
-//        }
+                }
+            }
+        }
     }
 
     @Override
