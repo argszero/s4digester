@@ -1,3 +1,41 @@
+#  设计
+
+<pre>
+
+                                             SignalingAdapter
+                                                     |    
+                                                     |      Signaling [SignalingEvent]
+                                                     |                                
+                           +-------------------------+--------------------------+
+                           |                                                    |                                                 
+                           |                                                    |                                                 
+                           |  daytime StayHoursPE                               |night StayHoursPE                                
+                           |                                                    |                                                 
+                           | one pe instance per imsi                           |     one pe instance per imsi                    
+                           |                                                    |                                                 
+          +------------+---+--------+----------                  +---------+--------+------+--------                              
+          |            |            |                            |         |               |           
+          |            |            |                            |         |               |             ->>---------->>>>>-------+
+    StayHoursPE   StayHoursPE    StayHoursPE                StayHoursPE StayHoursPE     StayHoursPE                               |
+          |            |            |                            |         |               |             -<<--TimeUpdateEvent-----+
+          |            |            |                            |         |               |                                      |
+         -+  -- -- -- -+ -- -- -- --|-- --  [StayHoursEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
+          |            |            |                            |         |               |                                      |
+          |            |            |                            |         |               |                                      |
+     StayDaysPE   StayDaysPE     StayDaysPE                StayDaysPE  StayDaysPE      StayDaysPE                                 |
+          |            |            |                            |         |               |             -<<--AgeUpdateEvent------+
+          |            |            |                            |         |               |
+         -+  -- -- -- -+ -- -- -- --|--  --  [StayDaysEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
+          |            |            |                            |         |               |
+          +------------+------------+----------------+-----------+---------+---------------+-
+                                                     |
+                                                     |
+                                                     |
+                                                     |
+                                              JoinAndPrintPE
+
+</pre>
+
 * 由SignalingAdapter不断的将信令发送到Stream:Signaling
 * 两种(分别统计白天停留时间和晚上停留时间）StayHoursPE接收信令事件，对于每种统计，每个imsi创建一个StayHoursPE实例
 * 由于对于每个StayHoursPE实例，只负责统计一个用户的相关信令，因此在信令处理时加不加锁都对全局性能影响不大
@@ -33,37 +71,3 @@
 
 * 当时间在统计结束时间+窗口时间以内时，只统计上一个统计周期内的停留时间。 即当统计08:00~18:00时，在17号18:05~18号18:05之内，都只记录17号的状态。
 
-<pre>
-
-                                             SignalingAdapter
-                                                     |    
-                                                     |      Signaling [SignalingEvent]
-                                                     |                                
-                           +-------------------------+--------------------------+
-                           |                                                    |                                                                       
-                           |                                                    |                                                                       
-                           |  daytime StayHoursPE                               |night StayHoursPE                                                      
-                           |                                                    |                                                                       
-                           | one pe instance per imsi                           |     one pe instance per imsi                                          
-                           |                                                    |                                                                       
-          +------------+---+--------+----------                  +---------+--------+------+--------                                                        
-          |            |            |                            |         |               |           
-          |            |            |                            |         |               |             ->>---------->>>>>-------+
-    StayHoursPE   StayHoursPE    StayHoursPE                StayHoursPE StayHoursPE     StayHoursPE                               |
-          |            |            |                            |         |               |             -<<--TimeUpdateEvent-----+
-          |            |            |                            |         |               |                                      |
-         -+  -- -- -- -+ -- -- -- --|-- --  [StayHoursEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
-          |            |            |                            |         |               |                                      |
-          |            |            |                            |         |               |                                      |
-     StayDaysPE   StayDaysPE     StayDaysPE                StayDaysPE  StayDaysPE      StayDaysPE                                 |
-          |            |            |                            |         |               |             -<<--AgeUpdateEvent------+
-          |            |            |                            |         |               |
-         -+  -- -- -- -+ -- -- -- --|--  --  [StayDaysEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
-          |            |            |                            |         |               |
-          +------------+------------+----------------+-----------+---------+---------------+-
-                                                     |
-                                                     |
-                                                     |
-                                                     |
-                                              JoinAndPrintPE
-</pre>
