@@ -15,17 +15,17 @@
                            |                                                    |                                                 
           +------------+---+--------+----------                  +---------+--------+------+--------                              
           |            |            |                            |         |               |           
-          |            |            |                            |         |               |             ->>---------->>>>>-------+
-    StayHoursPE   StayHoursPE    StayHoursPE                StayHoursPE StayHoursPE     StayHoursPE                               |
-          |            |            |                            |         |               |             -<<--TimeUpdateEvent-----+
+          |            |            |                            |         |               |                    ------------------+
+    StayHoursPE   StayHoursPE    StayHoursPE                StayHoursPE StayHoursPE     StayHoursPE                               v
+          |            |            |                            |         |               |             -----TimeUpdateEvent-----+
           |            |            |                            |         |               |                                      |
          -+  -- -- -- -+ -- -- -- --|-- --  [StayHoursEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
-          |            |            |                            |         |               |                                      |
-          |            |            |                            |         |               |                                      |
+          |            |            |                            |         |               |                                      v
+          |            |            |                            |         |               |                                      v
      StayDaysPE   StayDaysPE     StayDaysPE                StayDaysPE  StayDaysPE      StayDaysPE                                 |
-          |            |            |                            |         |               |             -<<--AgeUpdateEvent------+
+          |            |            |                            |         |               |             -----AgeUpdateEvent------+
           |            |            |                            |         |               |
-         -+  -- -- -- -+ -- -- -- --|--  --  [StayDaysEvent]  -- | --  -- -+ -- -- -- -- --|-- --                                 |
+         -+  -- -- -- -+ -- -- -- --|--  --  [StayDaysEvent]  -- | --  -- -+ -- -- -- -- --|-- -
           |            |            |                            |         |               |
           +------------+------------+----------------+-----------+---------+---------------+-
                                                      |
