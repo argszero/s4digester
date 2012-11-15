@@ -35,7 +35,7 @@ public class StayDaysPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     DaysCache[] daysCaches = new DaysCache[10];
     private Stream<StayDaysEvent>[] streams;
-    private Stream<AgeChangeEvent>[] ageUpdateStream;
+//    private Stream<AgeChangeEvent>[] ageUpdateStream;
     private final String name;
 
     public StayDaysPE(App app, String name) {
@@ -109,7 +109,7 @@ public class StayDaysPE extends ProcessingElement {
                         long newAge = daysCaches[daysCaches.length - 2].getAge() + 1;
                         daysCache.setAge(newAge);
                         daysCaches[daysCaches.length - 1] = daysCache;
-                        emitNewAge(newAge);
+//                        emitNewAge(newAge);
                         for (String imsi : removedImsiSet) { //将去掉的那一天里包含的imsi，重新计算
                             checkAndEmit(imsi);
                         }
@@ -126,12 +126,12 @@ public class StayDaysPE extends ProcessingElement {
         }
     }
 
-    private void emitNewAge(long newAge) {
-        AgeChangeEvent daytimeAgeUpdateEvent = new AgeChangeEvent();
-        daytimeAgeUpdateEvent.setAge(newAge);
-        daytimeAgeUpdateEvent.setStatisticsName(name);
-        emit(daytimeAgeUpdateEvent, ageUpdateStream);
-    }
+//    private void emitNewAge(long newAge) {
+//        AgeChangeEvent daytimeAgeUpdateEvent = new AgeChangeEvent();
+//        daytimeAgeUpdateEvent.setAge(newAge);
+//        daytimeAgeUpdateEvent.setStatisticsName(name);
+//        emit(daytimeAgeUpdateEvent, ageUpdateStream);
+//    }
 
     private void checkAndEmit(String imsi) {
         int matchDays = 0; //是否满足最近十天有多余5天符合条件
@@ -154,9 +154,9 @@ public class StayDaysPE extends ProcessingElement {
         this.streams = streams;
     }
 
-    public void setAgeUpdateStreams(Stream<AgeChangeEvent>... ageUpdateStream) {
-        this.ageUpdateStream = ageUpdateStream;
-    }
+//    public void setAgeUpdateStreams(Stream<AgeChangeEvent>... ageUpdateStream) {
+//        this.ageUpdateStream = ageUpdateStream;
+//    }
 
     private static class DaysCache {
         private Set<String> imsiSet = new ConcurrentSkipListSet<String>();
