@@ -90,7 +90,7 @@ public class StayHoursPE extends ProcessingElement {
                 //TODO: 其实不应该等到18点后再检查，用户如果9点进入景区，12点之前都没有收到其他信令，则应该认为用户已经在景区停留3个小时了。
                 for (Map.Entry<String, SingleImsiProcessor> entry : processorMap.entrySet()) {
                     //我们认为
-//                    entry.getValue().forceCheck(event.getEventTime(), this, streams, entry.getKey(), entry.getValue().lastStatus.isInside);
+                    entry.getValue().forceCheck(event.getEventTime(), this, streams, entry.getKey(), entry.getValue().lastStatus.isInside);
                 }
             }
         }
@@ -126,6 +126,7 @@ public class StayHoursPE extends ProcessingElement {
                 long lastEndAge = getNextAge(lastStatus.getEventTime(), pe.end);
                 long signalingAge = getNextAge(event.getSignalingTime(), pe.end);
                 if (lastEndAge != signalingAge) { //如果是新的统计周期，则清空
+                    pe.endAge = signalingAge;
                     if (logger.isTraceEnabled()) {
                         logger.trace("{}:new circle:[{} -> {}]", new Object[]{pe.statisticsName, getDate(lastEndAge), getDate(signalingAge)});
                     }
