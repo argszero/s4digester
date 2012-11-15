@@ -76,7 +76,7 @@ public class TouristApp extends App {
 
         //除了以上输入处理流程以外,还需要向StayDaysPE，StayHoursPE通知统计周期变更事件，事件由 daytimeStayHoursPE，nightStayHoursPE在接收到新的统计周期的event时产生
 //        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", daytimeStayDaysPE, nightStayDaysPE, daytimeStayHoursPE, nightStayHoursPE);
-        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", createPE(HelloPE.class));
+        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", daytimeStayDaysPE,createPE(HelloPE.class));
         daytimeStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
         nightStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
 
