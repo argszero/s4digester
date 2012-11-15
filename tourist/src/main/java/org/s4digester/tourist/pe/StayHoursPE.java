@@ -55,7 +55,7 @@ public class StayHoursPE extends ProcessingElement {
     protected void onCreate() {
         setName(format("StayHoursPE[%d:%d~%d:%d > %d:%d]", getHour(start), getMinute(start), getHour(end), getMinute(end), getHour(stayTime), getMinute(stayTime)));
         logger.info("create {}",statisticsName);
-        logger.info(format("ZONE_OFFSET:%d", Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
+        logger.info(format("%s:ZONE_OFFSET:%d", statisticsName,Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
     }
 
     @Override
@@ -65,12 +65,12 @@ public class StayHoursPE extends ProcessingElement {
 
     public void onEvent(SignalingEvent event) {
         if (logger.isTraceEnabled()) {
-            logger.trace("receive Signaling:{}", new Gson().toJson(event));
+            logger.trace("{}:receive Signaling:{}", statisticsName,new Gson().toJson(event));
         }
         long eventAge = getNextAge(event.getSignalingTime(), end);
         if (eventAge > endAge) { //一个统计周期结束，需要发出通知。对于白天的统计任务，18点之后发出通知，对于晚上的统计人，8点后发出通知
             if (logger.isTraceEnabled()) {
-                logger.trace("new endAge:[{} -> {}]", endAge, eventAge);
+                logger.trace("{}:new endAge:[{} -> {}]", new Object[]{statisticsName,endAge, eventAge});
             }
             AgeChangeEvent ageChangeEvent = new AgeChangeEvent();
             ageChangeEvent.setAge(eventAge);
@@ -127,7 +127,7 @@ public class StayHoursPE extends ProcessingElement {
                 long signalingAge = getNextAge(event.getSignalingTime(), pe.end);
                 if (lastEndAge != signalingAge) { //如果是新的统计周期，则清空
                     if (logger.isTraceEnabled()) {
-                        logger.trace("new circle:[{} -> {}]", getDate(lastEndAge), getDate(signalingAge));
+                        logger.trace("{}:new circle:[{} -> {}]", new Object[]{pe.statisticsName, getDate(lastEndAge), getDate(signalingAge)});
                     }
                     //判断老的周期是不是符合条件，并将状态更新为新的周期
                     forceCheck(event.getSignalingTime(), pe, streams, event.getImsi(), isInsideNow);
@@ -135,7 +135,7 @@ public class StayHoursPE extends ProcessingElement {
                     long start = (pe.start < pe.end ? lastEndAge : lastEndAge - 1) * 24 * 60 * 60 * 1000 + pe.start; //统计起点，对于白天，则为当天，对于晚上，为结束的头一天
                     long end = lastEndAge * 24 * 60 * 60 * 1000 + pe.end; //统计终点
                     if (logger.isTraceEnabled()) {
-                        logger.trace("imsi:{},lastStatus.isInside:{},lastTime:{},isInsideNow:{},nowTime:{}", new Object[]{event.getImsi(), lastStatus.isInside, lastStatus.getEventTime(), isInsideNow, event.getSignalingTime()});
+                        logger.trace("{}: imsi:{},lastStatus.isInside:{},lastTime:{},isInsideNow:{},nowTime:{}", new Object[]{pe.statisticsName,event.getImsi(), lastStatus.isInside, lastStatus.getEventTime(), isInsideNow, event.getSignalingTime()});
                     }
                     String action = "";
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
@@ -203,7 +203,7 @@ public class StayHoursPE extends ProcessingElement {
 
             if (stay4OneDayEvent != null) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("emit event: {}", new Gson().toJson(stay4OneDayEvent));
+                    logger.trace("{}: emit event: {}",new Object[]{pe.statisticsName,new Gson().toJson(stay4OneDayEvent)});
                 }
                 pe.emit(stay4OneDayEvent, streams);
             }
