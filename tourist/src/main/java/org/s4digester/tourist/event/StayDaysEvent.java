@@ -3,14 +3,14 @@ package org.s4digester.tourist.event;
 import org.apache.s4.base.Event;
 
 /**
- * 从哪一天之前10天内大于5点的 指定用户(imsi),是否符合条件(matches)
+ * 用户停留的天数，是否符合条件,比如10天内至少5天
  */
 public class StayDaysEvent extends Event {
     private String imsi;
 
     private boolean matches;
 
-   private String statisticsName;
+    private String statisticsName;
 
     public String getImsi() {
         return imsi;

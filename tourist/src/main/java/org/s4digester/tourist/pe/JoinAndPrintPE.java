@@ -58,14 +58,14 @@ public class JoinAndPrintPE extends ProcessingElement {
             if (isUpdated) {
                 Collection<String> joins = join.imsiSetMap.get(statisticsNames[0]);
                 for (int i = 1; i < statisticsNames.length; i++) {
-                    joins =   CollectionUtils.intersection(joins, join.imsiSetMap.get(statisticsNames[i]));
+                    joins = CollectionUtils.intersection(joins, join.imsiSetMap.get(statisticsNames[i]));
                 }
                 StringBuffer sb = new StringBuffer();
                 sb.append("Latest Tourist List:");
                 sb.append("\n");
                 for (String joinImsi : joins) {
                     if (isLangOnline(joinImsi)) {
-                        sb.append(joinImsi+"\n");
+                        sb.append(joinImsi + "\n");
                     }
                 }
                 logger.info(sb.toString());
@@ -79,9 +79,6 @@ public class JoinAndPrintPE extends ProcessingElement {
     }
 
     private static class Join {
-//        private Set<String> daytimeSet = new HashSet<String>();
-//        private Set<String> nightSet = new HashSet<String>();
-        private Map<String,Set<String>> imsiSetMap = LazyMap.decorate(new HashMap<String,Set<String>>(), InstantiateFactory.getInstance(HashSet.class,new Class[0], new Object[0]));
-        private long age = -1;
+        private Map<String, Set<String>> imsiSetMap = LazyMap.decorate(new HashMap<String, Set<String>>(), InstantiateFactory.getInstance(HashSet.class, new Class[0], new Object[0]));
     }
 }

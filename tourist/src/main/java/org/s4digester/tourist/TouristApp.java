@@ -3,10 +3,7 @@ package org.s4digester.tourist;
 import org.apache.s4.base.KeyFinder;
 import org.apache.s4.core.App;
 import org.apache.s4.core.Stream;
-import org.s4digester.tourist.event.AgeChangeEvent;
-import org.s4digester.tourist.event.SignalingEvent;
-import org.s4digester.tourist.event.StayDaysEvent;
-import org.s4digester.tourist.event.StayHoursEvent;
+import org.s4digester.tourist.event.*;
 import org.s4digester.tourist.pe.JoinAndPrintPE;
 import org.s4digester.tourist.pe.StayDaysPE;
 import org.s4digester.tourist.pe.StayHoursPE;
@@ -73,10 +70,15 @@ public class TouristApp extends App {
             }
         }, daytimeStayHoursPE, nightStayHoursPE);
 
-        //除了以上输入处理流程以外,还需要向StayDaysPE，StayHoursPE通知统计周期变更事件，事件由 daytimeStayHoursPE，nightStayHoursPE在接收到新的统计周期的event时产生
-        Stream<AgeChangeEvent> ageChangeEventStream = createInputStream("AgeChangeEvents", daytimeStayDaysPE, nightStayDaysPE, daytimeStayHoursPE, nightStayHoursPE);
-        daytimeStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
-        nightStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
+        //StayHoursPE产生AgeChangeEvents，给StayDaysPE
+        Stream<AgeUpdateEvent> ageChangeEventStream = createInputStream("AgeUpdateEvents", daytimeStayDaysPE, nightStayDaysPE);
+        daytimeStayHoursPE.setAgeUpdateEventStreams(ageChangeEventStream);
+        nightStayHoursPE.setAgeUpdateEventStreams(ageChangeEventStream);
+
+        //StayHoursPE产生TimeUpdateEvents，给所有StayHoursPE
+        Stream<TimeUpdateEvent> timeUpdateEventStream = createInputStream("TimeUpdateEvents", daytimeStayHoursPE, nightStayHoursPE);
+        daytimeStayHoursPE.setTimeUpdateEventStreams(timeUpdateEventStream);
+        nightStayHoursPE.setTimeUpdateEventStreams(timeUpdateEventStream);
 
         logger.info("Finish init TouristApp1");
     }

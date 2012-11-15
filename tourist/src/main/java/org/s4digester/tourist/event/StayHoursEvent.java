@@ -3,11 +3,12 @@ package org.s4digester.tourist.event;
 import org.apache.s4.base.Event;
 
 /**
- * 在某一天停留时间符合指定长度的用户
+ * 在某一天停留时间符合条件，比如一天内至少停留3个小时
  */
 public class StayHoursEvent extends Event {
     private String imsi;
     private long endAge;
+    private boolean matches;
     private String statisticsName;
 
     public String getImsi() {
@@ -32,5 +33,13 @@ public class StayHoursEvent extends Event {
 
     public void setStatisticsName(String statisticsName) {
         this.statisticsName = statisticsName;
+    }
+
+    public boolean isMatches() {
+        return matches;
+    }
+
+    public void setMatches(boolean matches) {
+        this.matches = matches;
     }
 }
