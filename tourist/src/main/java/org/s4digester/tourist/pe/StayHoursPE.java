@@ -8,7 +8,9 @@ import org.apache.s4.base.Event;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
-import org.s4digester.tourist.event.*;
+import org.s4digester.tourist.event.AgeChangeEvent;
+import org.s4digester.tourist.event.SignalingEvent;
+import org.s4digester.tourist.event.StayHoursEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,7 @@ public class StayHoursPE extends ProcessingElement {
     private final long stayTime;//停留时间阀值 ，比如3个小时，即 3*60*60*1000
     private String statisticsName;
 
-    public StayHoursPE(App app, long start, long end, long stayTime,String statisticsName) {
+    public StayHoursPE(App app, long start, long end, long stayTime, String statisticsName) {
         super(app);
         this.start = start;
         this.end = end;
@@ -56,23 +58,23 @@ public class StayHoursPE extends ProcessingElement {
     @Override
     protected void onCreate() {
         setName(format("StayHoursPE[%d:%d~%d:%d > %d:%d]", getHour(start), getMinute(start), getHour(end), getMinute(end), getHour(stayTime), getMinute(stayTime)));
-        logger.info("create {}",statisticsName);
-        logger.info(format("%s:ZONE_OFFSET:%d", statisticsName,Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
+        logger.info("create {}", statisticsName);
+        logger.info(format("%s:ZONE_OFFSET:%d", statisticsName, Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
     }
 
     @Override
     protected void onRemove() {
-        logger.info("remove {}",statisticsName);
+        logger.info("remove {}", statisticsName);
     }
 
     public void onEvent(SignalingEvent event) {
         if (logger.isTraceEnabled()) {
-            logger.trace("{}:receive Signaling:{}", statisticsName,new Gson().toJson(event));
+            logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
         }
         long eventAge = getNextAge(event.getSignalingTime(), end);
         if (eventAge > endAge) { //一个统计周期结束，需要发出通知。对于白天的统计任务，18点之后发出通知，对于晚上的统计人，8点后发出通知
             if (logger.isTraceEnabled()) {
-                logger.trace("{}:new endAge:[{} -> {}]", new Object[]{statisticsName,endAge, eventAge});
+                logger.trace("{}:new endAge:[{} -> {}]", new Object[]{statisticsName, endAge, eventAge});
             }
             AgeChangeEvent ageChangeEvent = new AgeChangeEvent();
             ageChangeEvent.setAge(eventAge);
@@ -138,31 +140,31 @@ public class StayHoursPE extends ProcessingElement {
                     long start = (pe.start < pe.end ? lastEndAge : lastEndAge - 1) * 24 * 60 * 60 * 1000 + pe.start; //统计起点，对于白天，则为当天，对于晚上，为结束的头一天
                     long end = lastEndAge * 24 * 60 * 60 * 1000 + pe.end; //统计终点
                     if (logger.isTraceEnabled()) {
-                        logger.trace("{}: imsi:{},lastStatus.isInside:{},lastTime:{},isInsideNow:{},nowTime:{}", new Object[]{pe.statisticsName,event.getImsi(), lastStatus.isInside, lastStatus.getEventTime(), isInsideNow, event.getSignalingTime()});
+                        logger.trace("{}: imsi:{},lastStatus.isInside:{},lastTime:{},isInsideNow:{},nowTime:{}", new Object[]{pe.statisticsName, event.getImsi(), lastStatus.isInside, lastStatus.getEventTime(), isInsideNow, event.getSignalingTime()});
                     }
                     String action = "";
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.setEventTime(event.getSignalingTime());
-                        action="keep outside";
+                        action = "keep outside";
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区。
                         // 为什么不是：Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start)？
                         // 假设signalingTime 为20点， lastTime为19点  min(18,20) - max(19,8) = 18-19 = -1
                         //这种情况下，应该为min(18,20) - min( max(19,8),18) = 0 才对
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
-                        action="keep inside";
+                        action = "keep inside";
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
-                        action="enter";
+                        action = "enter";
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
-                        action="leave";
+                        action = "leave";
                     }
                     if (logger.isDebugEnabled()) {
-                        logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, event.getImsi(),action, lastStatus.stayTimeOfToday});
+                        logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, event.getImsi(), action, lastStatus.stayTimeOfToday});
                     }
                     if (lastStatus.stayTimeOfToday > pe.stayTime) {
                         StayHoursEvent stay4OneDayEvent = new StayHoursEvent();
@@ -183,7 +185,6 @@ public class StayHoursPE extends ProcessingElement {
 
         public void forceCheck(long eventTime, StayHoursPE pe, Stream<StayHoursEvent>[] streams, String imsi, boolean insideNow) {
             synchronized (lastStatus) {
-                StayScenicDuringDaytimeEvent stayScenicDuringDaytimeEvent = null;
                 if (lastStatus.stayTimeOfToday <= pe.stayTime //未超过指定时间的（因为超过的已经发送过了）
                         && lastStatus.isInside  //最后一次出声时在景区（如果用户已经离开景区，也不需要计算了）
                         && (lastStatus.stayTimeOfToday + (pe.end - getMillOfToday(lastStatus.getEventTime()))) > pe.stayTime) { //TODO: 这里有问题，如果最后用户时间为23点，8点检查时怎么办？
@@ -197,7 +198,7 @@ public class StayHoursPE extends ProcessingElement {
                 lastStatus.isInside = insideNow;
                 lastStatus.stayTimeOfToday = 0;
                 if (logger.isDebugEnabled()) {
-                    logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, imsi,"new age", lastStatus.stayTimeOfToday});
+                    logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, imsi, "new age", lastStatus.stayTimeOfToday});
                 }
             }
 
@@ -206,7 +207,7 @@ public class StayHoursPE extends ProcessingElement {
 
             if (stay4OneDayEvent != null) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("{}: emit event: {}",new Object[]{pe.statisticsName,new Gson().toJson(stay4OneDayEvent)});
+                    logger.trace("{}: emit event: {}", new Object[]{pe.statisticsName, new Gson().toJson(stay4OneDayEvent)});
                 }
                 pe.emit(stay4OneDayEvent, streams);
             }
