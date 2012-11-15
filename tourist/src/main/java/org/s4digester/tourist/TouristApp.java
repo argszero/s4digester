@@ -35,7 +35,7 @@ public class TouristApp extends App {
 
     @Override
     protected void onInit() {
-        logger.info("Begin init TouristApp");
+        logger.info("Begin init TouristApp1");
         //     单利
         //JoinAndPrintPE2 <-- StayDaysEvent <-- StayDaysPE <-- StayHoursEvent <--  StayHoursPE  <--SignalingEvent <-- Adaptor
         //JoinAdPrintPE2是做最后的汇总，应该只有一个
@@ -78,7 +78,7 @@ public class TouristApp extends App {
         daytimeStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
         nightStayHoursPE.setAgeChangeStreams(ageChangeEventStream);
 
-        logger.info("Finish init TouristApp");
+        logger.info("Finish init TouristApp1");
     }
 
     @Override
