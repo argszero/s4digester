@@ -193,6 +193,9 @@ public class StayHoursPE extends ProcessingElement {
                 lastStatus.setEventTime(eventTime);
                 lastStatus.isInside = insideNow;
                 lastStatus.stayTimeOfToday = 0;
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, imsi,"new age", lastStatus.stayTimeOfToday});
+                }
             }
 
 

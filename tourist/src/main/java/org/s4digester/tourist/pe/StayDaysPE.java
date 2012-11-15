@@ -35,12 +35,12 @@ public class StayDaysPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     DaysCache[] daysCaches = new DaysCache[10];
     private Stream<StayDaysEvent>[] streams;
-//    private Stream<AgeChangeEvent>[] ageUpdateStream;
-    private final String name;
+    //    private Stream<AgeChangeEvent>[] ageUpdateStream;
+    private final String statisticsName;
 
     public StayDaysPE(App app, String name) {
         super(app);
-        this.name = name;
+        this.statisticsName = name;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class StayDaysPE extends ProcessingElement {
     }
 
     public void onEvent(AgeChangeEvent event) {
-        if (name.equals(event.getStatisticsName())) {
+        if (statisticsName.equals(event.getStatisticsName())) {
             long age = event.getAge();
             synchronized (daysCaches) {
                 DaysCache daysCache = getLatestDaysCache(event.getAge());
@@ -75,7 +75,7 @@ public class StayDaysPE extends ProcessingElement {
     }
 
     public void onEvent(StayHoursEvent event) {
-        if (name.equals(event.getStatisticsName())) {
+        if (statisticsName.equals(event.getStatisticsName())) {
             if (logger.isTraceEnabled()) {
                 logger.trace("receive StayHoursEvent:{}", new Gson().toJson(event));
             }
@@ -134,7 +134,7 @@ public class StayDaysPE extends ProcessingElement {
 //    private void emitNewAge(long newAge) {
 //        AgeChangeEvent daytimeAgeUpdateEvent = new AgeChangeEvent();
 //        daytimeAgeUpdateEvent.setAge(newAge);
-//        daytimeAgeUpdateEvent.setStatisticsName(name);
+//        daytimeAgeUpdateEvent.setStatisticsName(statisticsName);
 //        emit(daytimeAgeUpdateEvent, ageUpdateStream);
 //    }
 
@@ -146,10 +146,13 @@ public class StayDaysPE extends ProcessingElement {
                     matchDays++;
                 }
             }
+            if (logger.isDebugEnabled()) {
+                logger.debug("{}: imsi[{}], matchDays[{}]", new Object[]{statisticsName, imsi, matchDays});
+            }
             StayDaysEvent event = new StayDaysEvent();
             event.setImsi(imsi);
             event.setMatches(matchDays > 5);
-            event.setStatisticsName(name);
+            event.setStatisticsName(statisticsName);
 //            event.setToAge(daysCaches[daysCaches.length - 1].age);
             emit(event, streams);
         }
