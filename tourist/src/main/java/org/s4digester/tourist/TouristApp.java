@@ -35,12 +35,13 @@ public class TouristApp extends App {
 
     @Override
     protected void onInit() {
-        logger.info("Begin init TouristApp1");
-        //     单利
+        logger.info("Begin init TouristApp");
+        String daytime = "daytime";
+        String night = "night";
         //JoinAndPrintPE2 <-- StayDaysEvent <-- StayDaysPE <-- StayHoursEvent <--  StayHoursPE  <--SignalingEvent <-- Adaptor
         //JoinAdPrintPE2是做最后的汇总，应该只有一个
         //StayDaysPE有两种，StayHoursPE也有两种，分别处理白天和晚上的统计
-        JoinAndPrintPE2 joinAndPrintPE2 = createPE(JoinAndPrintPE2.class);
+        JoinAndPrintPE2 joinAndPrintPE2 =  new JoinAndPrintPE2(this,daytime,night);
         joinAndPrintPE2.setSingleton(true);
         Stream<StayDaysEvent> stayDaysEventStream = createInputStream("StayDaysEvents", new KeyFinder<StayDaysEvent>() {
             @Override
@@ -48,8 +49,7 @@ public class TouristApp extends App {
                 return Arrays.asList(event.getImsi());
             }
         }, joinAndPrintPE2);
-        String daytime = "daytime";
-        String night = "night";
+
         StayDaysPE daytimeStayDaysPE = new StayDaysPE(this, daytime);
         daytimeStayDaysPE.setStreams(stayDaysEventStream);
         StayDaysPE nightStayDaysPE = new StayDaysPE(this, night);
