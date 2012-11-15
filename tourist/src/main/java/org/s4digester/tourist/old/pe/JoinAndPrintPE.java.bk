@@ -1,17 +1,16 @@
 package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
-import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.functors.InstantiateFactory;
-import org.apache.commons.collections.map.LazyMap;
-import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
-import org.s4digester.tourist.event.StayDaysEvent;
+import org.s4digester.tourist.event.AgedImsiListEvent;
+import org.s4digester.tourist.event.Daytime5In10Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 根据imsi分布
@@ -20,16 +19,9 @@ import java.util.*;
  * 2. 晚上...
  * 3. 在网时长...
  */
-@ThreadSafe
 public class JoinAndPrintPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Join join = new Join();
-    private String[] statisticsNames;//白天和晚上
-
-    public JoinAndPrintPE(App app, String... statisticsNames) {
-        super(app);
-        this.statisticsNames = statisticsNames;
-    }
 
     @Override
     protected void onCreate() {
@@ -39,8 +31,7 @@ public class JoinAndPrintPE extends ProcessingElement {
     protected void onRemove() {
     }
 
-
-    public void onEvent(StayDaysEvent event) {
+    public void onEvent(AgedImsiListEvent event) {
         if (logger.isTraceEnabled()) {
             logger.trace("receive AgedImsiListEvent:{}", new Gson().toJson(event));
         }
@@ -49,17 +40,21 @@ public class JoinAndPrintPE extends ProcessingElement {
         boolean matches = event.isMatches();
         synchronized (join) {
             boolean isUpdated = false;
-            if (matches) {
-                isUpdated = join.imsiSetMap.get(event.getStatisticsName()).add(imsi);
-            } else {
-                isUpdated = join.imsiSetMap.get(event.getStatisticsName()).remove(imsi);
-            }
-
-            if (isUpdated) {
-                Collection<String> joins = join.imsiSetMap.get(statisticsNames[0]);
-                for (int i = 1; i < statisticsNames.length; i++) {
-                    joins =   CollectionUtils.intersection(joins, join.imsiSetMap.get(statisticsNames[i]));
+            if (event instanceof Daytime5In10Event) {
+                if (matches) {
+                    isUpdated = join.daytimeSet.add(imsi);
+                } else {
+                    isUpdated = join.daytimeSet.remove(imsi);
                 }
+            } else {
+                if (matches) {
+                    isUpdated = join.nightSet.add(imsi);
+                } else {
+                    isUpdated = join.nightSet.remove(imsi);
+                }
+            }
+            if (isUpdated) {
+                Collection<String> joins = CollectionUtils.intersection(join.daytimeSet, join.nightSet);
                 StringBuffer sb = new StringBuffer();
                 sb.append("Latest Tourist List:");
                 sb.append("\n");
@@ -79,9 +74,8 @@ public class JoinAndPrintPE extends ProcessingElement {
     }
 
     private static class Join {
-//        private Set<String> daytimeSet = new HashSet<String>();
-//        private Set<String> nightSet = new HashSet<String>();
-        private Map<String,Set<String>> imsiSetMap = LazyMap.decorate(new HashMap<String,Set<String>>(), InstantiateFactory.getInstance(HashSet.class,new Class[0], new Object[0]));
+        private Set<String> daytimeSet = new HashSet<String>();
+        private Set<String> nightSet = new HashSet<String>();
         private long age = -1;
     }
 }

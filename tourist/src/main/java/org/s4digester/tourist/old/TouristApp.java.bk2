@@ -7,7 +7,8 @@ import org.s4digester.tourist.event.AgeChangeEvent;
 import org.s4digester.tourist.event.SignalingEvent;
 import org.s4digester.tourist.event.StayDaysEvent;
 import org.s4digester.tourist.event.StayHoursEvent;
-import org.s4digester.tourist.pe.JoinAndPrintPE;
+import org.s4digester.tourist.pe.HelloPE;
+import org.s4digester.tourist.pe.JoinAndPrintPE2;
 import org.s4digester.tourist.pe.StayDaysPE;
 import org.s4digester.tourist.pe.StayHoursPE;
 import org.slf4j.Logger;
@@ -38,10 +39,10 @@ public class TouristApp extends App {
         logger.info("Begin init TouristApp");
         String daytime = "daytime";
         String night = "night";
-        //JoinAndPrintPE <-- StayDaysEvent <-- StayDaysPE <-- StayHoursEvent <--  StayHoursPE  <--SignalingEvent <-- Adaptor
+        //JoinAndPrintPE2 <-- StayDaysEvent <-- StayDaysPE <-- StayHoursEvent <--  StayHoursPE  <--SignalingEvent <-- Adaptor
         //JoinAdPrintPE2是做最后的汇总，应该只有一个
         //StayDaysPE有两种，StayHoursPE也有两种，分别处理白天和晚上的统计
-        JoinAndPrintPE joinAndPrintPE2 = new JoinAndPrintPE(this, daytime, night);
+        JoinAndPrintPE2 joinAndPrintPE2 =  new JoinAndPrintPE2(this,daytime,night);
         joinAndPrintPE2.setSingleton(true);
         Stream<StayDaysEvent> stayDaysEventStream = createInputStream("StayDaysEvents", new KeyFinder<StayDaysEvent>() {
             @Override
