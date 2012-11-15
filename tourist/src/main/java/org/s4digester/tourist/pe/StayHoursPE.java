@@ -1,6 +1,7 @@
 package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.collections.functors.InstantiateFactory;
 import org.apache.commons.collections.map.LazyMap;
 import org.apache.s4.base.Event;
@@ -27,6 +28,7 @@ import static org.s4digester.tourist.util.TimeUtil.*;
  * Time: 下午6:06
  * To change this template use File | Settings | File Templates.
  */
+@ThreadSafe
 public class StayHoursPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Map<String, SingleImsiProcessor> processorMap = LazyMap.decorate(new HashMap<String, SingleImsiProcessor>(), InstantiateFactory.getInstance(SingleImsiProcessor.class, new Class[0], new Object[0]));

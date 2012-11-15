@@ -1,6 +1,7 @@
 package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.InstantiateFactory;
 import org.apache.commons.collections.map.LazyMap;
@@ -19,6 +20,7 @@ import java.util.*;
  * 2. 晚上...
  * 3. 在网时长...
  */
+@ThreadSafe
 public class JoinAndPrintPE2 extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private Join join = new Join();

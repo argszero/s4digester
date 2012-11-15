@@ -1,6 +1,7 @@
 package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * 则白天为：2,3,4,5,6,7,8,9,10,11号的白天
  * 晚上为：2,3,4,5,6,7,8,9,10,11的晚上
  */
+@ThreadSafe
 public class StayDaysPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
     DaysCache[] daysCaches = new DaysCache[10];
