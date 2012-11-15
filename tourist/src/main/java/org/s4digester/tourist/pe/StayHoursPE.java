@@ -24,11 +24,7 @@ import static java.lang.String.format;
 import static org.s4digester.tourist.util.TimeUtil.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: shaoaq
- * Date: 12-11-13
- * Time: 下午6:06
- * To change this template use File | Settings | File Templates.
+ * 每个Imsi一个实例
  */
 @ThreadSafe
 public class StayHoursPE extends ProcessingElement {
