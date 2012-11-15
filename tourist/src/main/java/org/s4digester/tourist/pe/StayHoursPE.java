@@ -36,7 +36,7 @@ public class StayHoursPE extends ProcessingElement {
     //对于晚上18到第二天早上8点的统计，到达这天的8点后要强制统计一下。计算方法即当前时间之后最近的8点所在的日期
     private long endAge;
     //每天的固定时间点到了。在这个case中，每天的8点和18点都会接收到这个事件。
-    private Stream<AgeChangeEvent>[] ageChangeStreams;
+    private Stream<AgeChangeEvent>[] ageChangeStreams = new Stream[0];
 
     private final long start; //开始时间，比如白天统计开始时间为8点，即8*60*60*1000  ，晚上统计开始时间为18点，即18*60*60*1000
     private final long end;  //结束时间，比如白天统计结束时间为18点，即18*60*60*1000  ，晚上统计结束时间为8点，即8*60*60*1000
