@@ -113,9 +113,12 @@ public class StayHoursPE extends ProcessingElement {
     /**
      * 不考虑Event乱序的单用户处理器
      */
-    private static class SingleImsiProcessor {
+    public static class SingleImsiProcessor {
         private Logger logger = LoggerFactory.getLogger(getClass());
         private Status lastStatus = new Status();
+
+        public SingleImsiProcessor() {
+        }
 
         public void process(SignalingEvent event, StayHoursPE pe, Stream<StayHoursEvent>[] streams) {
             boolean isInsideNow = isInside(event);
