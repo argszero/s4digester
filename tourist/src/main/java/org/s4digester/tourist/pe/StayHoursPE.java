@@ -137,24 +137,29 @@ public class StayHoursPE extends ProcessingElement {
                     if (logger.isTraceEnabled()) {
                         logger.trace("imsi:{},lastStatus.isInside:{},lastTime:{},isInsideNow:{},nowTime:{}", new Object[]{event.getImsi(), lastStatus.isInside, lastStatus.getEventTime(), isInsideNow, event.getSignalingTime()});
                     }
+                    String action = "";
                     if (!lastStatus.isInside && !isInsideNow) {//一直不在景区
                         lastStatus.setEventTime(event.getSignalingTime());
+                        action="keep outside";
                     } else if (lastStatus.isInside && isInsideNow) { //一直在景区。
                         // 为什么不是：Math.min(end, event.getSignalingTime()) - Math.max(lastStatus.getEventTime(), start)？
                         // 假设signalingTime 为20点， lastTime为19点  min(18,20) - max(19,8) = 18-19 = -1
                         //这种情况下，应该为min(18,20) - min( max(19,8),18) = 0 才对
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
+                        action="keep inside";
                     } else if (!lastStatus.isInside && isInsideNow) { //新进入景区
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
+                        action="enter";
                     } else if (lastStatus.isInside && !isInsideNow) { //新离开景区
                         lastStatus.stayTimeOfToday += max(min(end, event.getSignalingTime()), start) - min(max(lastStatus.getEventTime(), start), end);
                         lastStatus.setEventTime(event.getSignalingTime());
                         lastStatus.isInside = isInsideNow;
+                        action="leave";
                     }
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("imsi[{}],stayTimeOfToday[{}]", event.getImsi(), lastStatus.stayTimeOfToday);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("{}: imsi[{}], action[{}], stayTimeOfToday[{}]", new Object[]{pe.statisticsName, event.getImsi(),action, lastStatus.stayTimeOfToday});
                     }
                     if (lastStatus.stayTimeOfToday > pe.stayTime) {
                         StayHoursEvent stay4OneDayEvent = new StayHoursEvent();
