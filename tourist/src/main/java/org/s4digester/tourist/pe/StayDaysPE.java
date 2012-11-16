@@ -92,10 +92,10 @@ public class StayDaysPE extends ProcessingElement {
     }
 
     public void onEvent(StayHoursEvent event) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
-        }
         if (statisticsName.equals(event.getStatisticsName())) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
+            }
             synchronized (recentDays) {
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
