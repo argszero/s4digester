@@ -2,6 +2,7 @@ package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
+import org.apache.commons.lang.StringUtils;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
@@ -10,6 +11,8 @@ import org.s4digester.tourist.event.StayDaysEvent;
 import org.s4digester.tourist.event.StayHoursEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * 判断用户停留天数是否满足条件的PE。
@@ -108,6 +111,8 @@ public class StayDaysPE extends ProcessingElement {
                 }
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
                 logger.debug(String.format("%s %s: days:%d",statisticsName,imsi,getMatchesDays(recentDays)));
+                logger.debug(String.format("%d",latestAge));
+                logger.debug(String.format("%d",Arrays.toString(recentDays)));
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }
