@@ -305,7 +305,7 @@ public class StayHoursPE extends ProcessingElement {
         }
 
         public SignalingEvent[] toArray() {
-            return (SignalingEvent[]) currentEvents.toArray(new Object[0]);
+            return currentEvents.toArray(new SignalingEvent[0]);
         }
 
         public SignalingEvent last() {
