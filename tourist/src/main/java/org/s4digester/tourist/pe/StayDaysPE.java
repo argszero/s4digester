@@ -52,23 +52,27 @@ public class StayDaysPE extends ProcessingElement {
      */
     public void onEvent(AgeUpdateEvent event) {
         if (statisticsName.equals(event.getStatisticsName())) {
-            synchronized (recentDays) {
-                long age = event.getAge();
-                if (latestAge == -1) {
-                    latestAge = age;
-                } else if (age > latestAge) {
-                    //左移
-                    long matchesDaysBefore = getMatchesDays(recentDays);
-                    while (age > latestAge) {
-                        for (int i = 1; i < recentDays.length; i++) {
-                            recentDays[i - 1] = recentDays[i];
-                        }
-                        latestAge++;
+            long age = event.getAge();
+            updateAge(age);
+        }
+    }
+
+    private void updateAge(long age) {
+        synchronized (recentDays) {
+            if (latestAge == -1) {
+                latestAge = age;
+            } else if (age > latestAge) {
+                //左移
+                long matchesDaysBefore = getMatchesDays(recentDays);
+                while (age > latestAge) {
+                    for (int i = 1; i < recentDays.length; i++) {
+                        recentDays[i - 1] = recentDays[i];
                     }
-                    //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
-                    if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
-                        send(false);
-                    }
+                    latestAge++;
+                }
+                //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
+                if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
+                    send(false);
                 }
             }
         }
@@ -103,6 +107,7 @@ public class StayDaysPE extends ProcessingElement {
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 long age = event.getEndAge();
+                updateAge(age);
                 long index = age + recentDays.length - 1 - latestAge;
                 if (index >= 0 && index < recentDays.length) {
                     recentDays[(int) index] = event.isMatches();
