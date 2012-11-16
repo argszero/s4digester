@@ -13,6 +13,8 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.String.format;
 import static org.s4digester.tourist.util.TimeUtil.*;
 
@@ -63,7 +65,7 @@ public class StayHoursPE extends ProcessingElement {
         synchronized (status) {
             boolean matchesBefore = isMatches(status.getStayTime());
             boolean inSideBefore = status.insideInWindow;
-            status.addEvent(event);
+            status.addEvent(start, end, event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
             if (matchesBefore ^ matchesNow) {
                 send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
@@ -157,23 +159,23 @@ public class StayHoursPE extends ProcessingElement {
         private long eventTimeOutWindow;
         private long eventTImeInWindow;
 
-        public void addEvent(SignalingEvent event) {
+        public void addEvent(long start, long end, SignalingEvent event) {
             imsi = event.getImsi();
             long eventTime = event.getSignalingTime();
 
             if (eventTime >= eventTImeInWindow - windowSize) {
                 Slot slot = window.add(event);
-                remove(slot);
+                remove(start, end, slot);
                 SignalingEvent[] eventArray = (SignalingEvent[]) window.firstSlot.toArray();
                 if (event.equals(eventArray.length - 1)) {
                     //如果event就是最新的
                     boolean isInsideNow = isInside(event);
-                    stayTimeInWindow += calc(insideInWindow, eventTImeInWindow, event);
+                    stayTimeInWindow += calc(start, end, insideInWindow, eventTImeInWindow, event);
                     insideInWindow = isInsideNow;
                     eventTImeInWindow = event.getSignalingTime();
                 } else {
                     //如果不是最新的，则从新计算所有event
-                    stayTimeInWindow = calc(insideOutWindow, eventTimeOutWindow, window.secondSlot.toArray(), window.firstSlot.toArray());
+                    stayTimeInWindow = calc(start, end, insideOutWindow, eventTimeOutWindow, window.secondSlot.toArray(), window.firstSlot.toArray());
                     insideInWindow = isInside(eventArray[eventArray.length - 1]);
                     eventTImeInWindow = eventArray[eventArray.length - 1].getSignalingTime();
                 }
@@ -181,11 +183,11 @@ public class StayHoursPE extends ProcessingElement {
         }
 
 
-        private long calc(boolean lastInSide, long lastEventTime, SignalingEvent[]... signalingEvents) {
+        private long calc(long start, long end, boolean lastInSide, long lastEventTime, SignalingEvent[]... signalingEvents) {
             long stayTime = 0;
             for (SignalingEvent[] events : signalingEvents) {
                 for (SignalingEvent event : events) {
-                    stayTime += calc(lastInSide, lastEventTime, event);
+                    stayTime += calc(start, end, lastInSide, lastEventTime, event);
                     lastInSide = isInside(event);
                     lastEventTime = event.getSignalingTime();
                 }
@@ -193,16 +195,21 @@ public class StayHoursPE extends ProcessingElement {
             return stayTime;
         }
 
-        private long calc(boolean lastInside, long lastEventTime, SignalingEvent event) {
+        private long calc(long start, long end, boolean lastInside, long lastEventTime, SignalingEvent event) {
             //只有上次在景区，停留时间才累加，否则（一直不在景区，新进入景区），停留时间都不变
-            return lastInside ? (event.getSignalingTime() - lastEventTime) : 0;
+            if (lastInside) {
+                long lastEndAge = getNextAge(lastEventTime, end);
+                long startTime = (start < end ? lastEndAge : lastEndAge - 1) * 24 * 60 * 60 * 1000 + start; //统计起点，对于白天，则为当天，对于晚上，为结束的头一天
+                long endTime = lastEndAge * 24 * 60 * 60 * 1000 + end; //统计终点
+                return max(min(end, event.getSignalingTime()), start) - min(max(lastEventTime, start), end);
+            } else return 0;
         }
 
-        private void remove(Slot slot) {
+        private void remove(long start, long end, Slot slot) {
             if (slot != null) {
                 SignalingEvent[] events = slot.toArray();
-                if(events.length>0){
-                    long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
+                if (events.length > 0) {
+                    long slotStayTime = calc(start, end, insideOutWindow, eventTimeOutWindow, events);
                     stayTimeOutWindow += slotStayTime;
                     stayTimeInWindow -= slotStayTime;
                     SignalingEvent lastOutWindowEvent = events[events.length - 1];
