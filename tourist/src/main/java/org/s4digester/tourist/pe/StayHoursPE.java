@@ -49,7 +49,6 @@ public class StayHoursPE extends ProcessingElement {
 
     @Override
     protected void onCreate() {
-        setName(format("StayHoursPE[%d:%d~%d:%d > %d:%d]", getHour(start), getMinute(start), getHour(end), getMinute(end), getHour(stayTime), getMinute(stayTime)));
         logger.info("create {}", statisticsName);
         logger.info(format("%s:ZONE_OFFSET:%d", statisticsName, Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
     }

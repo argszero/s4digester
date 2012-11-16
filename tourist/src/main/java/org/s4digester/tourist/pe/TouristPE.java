@@ -54,15 +54,18 @@ public class TouristPE extends ProcessingElement {
         String imsi = event.getImsi();
         boolean matches = event.isMatches();
         synchronized (join) {
-            boolean isUpdated = false;
             if (matches) {
-                isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).add(imsi);
+                boolean isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).add(imsi);
+                if (isUpdated) {
+                    logger.debug("{}:new worker:{}", event.getStatisticsName(), imsi);
+                }
             } else {
-                isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).remove(imsi);
+                boolean isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).remove(imsi);
+                if (isUpdated) {
+                    logger.debug("{}:new worker:{}", event.getStatisticsName(), imsi);
+                }
             }
-            if (isUpdated) {
-                logger.debug("new worker:{}", imsi);
-            }
+
         }
     }
 
