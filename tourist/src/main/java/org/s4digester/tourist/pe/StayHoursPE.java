@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import static java.lang.String.format;
 import static org.s4digester.tourist.util.TimeUtil.*;
@@ -61,26 +63,30 @@ public class StayHoursPE extends ProcessingElement {
         //首先发送TimeUpdateEvent
         sendTimeUpdateEvent(event.getSignalingTime());
         synchronized (status) {
-            boolean matchesBefore = status.isMatches();
+            boolean matchesBefore = isMatches(status.getStayTime());
             status.addEvent(event);
-            boolean matchesNow = status.isMatches();//如果添加了Event后，是否符合条件发生变更，则发出事件
+            boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
             if (matchesBefore ^ matchesNow) {
-                send(status.getImsi(), getNextAge(status.getLatestEventTime(), end), matchesNow);
+                send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
             }
         }
     }
 
+    private boolean isMatches(long stayTime) {
+        return stayTime > this.stayTime;
+    }
+
     public void onEvent(TimeUpdateEvent event) {
         synchronized (status) {
-            long latestAge = getNextAge(status.getLatestEventTime(), end);
-            if ((!status.isMatches())  //如果用户当前不满足条件
-                    && status.isInside()  //并且用户还未离开
-                    && status.getStayTimeTo(event.getSignalingTime()) > stayTime) { //并且到当前的停留时间满足条件
+            long latestAge = getNextAge(status.getEventTImeInWindow(), end);
+            if ((!isMatches(status.getStayTime()))  //如果用户当前不满足条件
+                    && status.isInsideInWindow()  //并且用户还未离开
+                    && isMatches(status.getStayTime() + event.getSignalingTime() - status.getEventTImeInWindow())) { //并且到当前的停留时间满足条件
                 send(status.getImsi(), latestAge, true);
             }
             long newAge = getNextAge(event.getSignalingTime(), end);
             if (newAge > latestAge) { //如果统计周期变更
-                status.reset(newAge);
+                status.reset(event.getSignalingTime());
                 sendAgeUpdateEvent(newAge, event.getSignalingTime());
             }
         }
@@ -130,45 +136,168 @@ public class StayHoursPE extends ProcessingElement {
     }
 
     private static class Status {
+        String imsi = "";
         private long stayTimeOutWindow;
-        private Window window;
+        private long stayTimeInWindow;
+        private final long windowSize = 5 * 60 * 1000;
+        private Window window = new Window();
+        private boolean insideOutWindow;
+        boolean insideInWindow = false;
+        private long eventTimeOutWindow;
+        private long eventTImeInWindow;
 
-        public boolean isMatches() {
-            return false;
+        public void addEvent(SignalingEvent event) {
+            imsi = event.getImsi();
+            long eventTime = event.getSignalingTime();
+            if (eventTime >= eventTImeInWindow - windowSize) {
+                Slot slot = window.add(event);
+                remove(slot);
+                SignalingEvent[] eventArray = (SignalingEvent[]) window.firstSlot.toArray();
+                if (event.equals(eventArray.length - 1)) {
+                    //如果event就是最新的
+                    boolean isInsideNow = isInside(event);
+                    stayTimeInWindow += calc(insideInWindow, eventTImeInWindow, event);
+                    insideInWindow = isInsideNow;
+                    eventTImeInWindow = event.getSignalingTime();
+                } else {
+                    //如果不是最新的，则从新计算所有event
+                    stayTimeInWindow = calc(insideOutWindow, eventTimeOutWindow, window.secondSlot.toArray(), window.firstSlot.toArray());
+                    insideInWindow = isInside(eventArray[eventArray.length - 1]);
+                    eventTImeInWindow = eventArray[eventArray.length - 1].getSignalingTime();
+                }
+            }
         }
 
-        public boolean isInside() {
-            return false;
+        private long calc(boolean lastInSide, long lastEventTime, SignalingEvent[]... signalingEvents) {
+            long stayTime = 0;
+            for (SignalingEvent[] events : signalingEvents) {
+                for (SignalingEvent event : events) {
+                    stayTime += calc(lastInSide, lastEventTime, event);
+                    lastInSide = isInside(event);
+                    lastEventTime = event.getSignalingTime();
+                }
+            }
+            return stayTime;
         }
 
-        public long getStayTimeTo(long signalingTime) {
-            return 0;
+        private long calc(boolean lastInside, long lastEventTime, SignalingEvent event) {
+            //只有上次在景区，停留时间才累加，否则（一直不在景区，新进入景区），停留时间都不变
+            return lastInside ? (event.getSignalingTime() - lastEventTime) : 0;
+        }
+
+        private void remove(Slot slot) {
+            SignalingEvent[] events = slot.toArray();
+            long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
+            stayTimeOutWindow += slotStayTime;
+            stayTimeInWindow -= slotStayTime;
+            SignalingEvent lastOutWindowEvent = events[events.length - 1];
+            insideOutWindow = isInside(lastOutWindowEvent);
+            eventTimeOutWindow = lastOutWindowEvent.getSignalingTime();
+        }
+
+        private boolean isInside(SignalingEvent event) {
+            //TODO: 需要根据知识库获取
+            return ("tourist".equals(event.getCell()));
+        }
+
+        public boolean isInsideInWindow() {
+            return insideInWindow;
+        }
+
+
+        public long getEventTImeInWindow() {
+            return eventTImeInWindow;
+        }
+
+        public long getStayTime() {
+            return stayTimeOutWindow + stayTimeInWindow;
         }
 
         public String getImsi() {
-            return null;
+            return imsi;
         }
 
-        public long getLatestEventTime() {
-            return 0;
-
-        }
-
-        public void reset(long newAge) {
-
-        }
-
-        public void addEvent(SignalingEvent event) {
-
+        public void reset(long eventTime) {
+            //imsi = "";  //imsi不会变，不需要重新初始化
+            stayTimeOutWindow = 0; //新周期，窗口外的停留时间为0
+            stayTimeInWindow = 0;  //新周期，窗口内的停留时间为0
+            SignalingEvent lastEvent = window.firstSlot.last();
+            insideOutWindow = isInside(lastEvent);
+            insideInWindow = insideOutWindow;
+            eventTimeOutWindow = lastEvent.getSignalingTime();
+            eventTImeInWindow = eventTimeOutWindow;
+            window = new Window();
         }
     }
 
+    /**
+     * 每个窗口有三个Slot。
+     * firstSlot: 保存最新的event，有可能5分钟内的全在这里，也可能只有最近1分钟的
+     * secondSlot: 保存上次的firstSlot,最近十分钟和最近5分钟以外的数据都在这里,可能更新
+     */
     private static class Window {
+        private final long windowSize = 5 * 60 * 1000;
+        private Slot firstSlot;
+        private Slot secondSlot;
 
-        public boolean isInside() {
-            return false;
+        Slot add(SignalingEvent event) {
+            init(event);
+            Slot removed = null;
+            if (firstSlot.endTime <= event.getSignalingTime()) {
+                //切换
+                synchronized (this) {
+                    removed = secondSlot;
+                    secondSlot = firstSlot;
+                    firstSlot = new Slot(event.getSignalingTime(), event.getSignalingTime() + windowSize);
+                }
+            }
+            firstSlot.add(event);
+            return removed;
+        }
 
+        private void init(SignalingEvent event) {
+            if (firstSlot == null) {
+                synchronized (this) {
+                    if (firstSlot == null) {
+                        firstSlot = new Slot(event.getSignalingTime(), event.getSignalingTime() + windowSize);
+                        secondSlot = new Slot(event.getSignalingTime() - windowSize, event.getSignalingTime());
+                    }
+                }
+            }
         }
     }
+
+    /**
+     * 保存[startTime,endTime)的数据
+     */
+    private static class Slot {
+        private final long startTime;
+        private final long endTime;
+
+        private ConcurrentSkipListSet<SignalingEvent> currentEvents = new ConcurrentSkipListSet<SignalingEvent>(new Comparator<SignalingEvent>() {
+            @Override
+            public int compare(SignalingEvent o1, SignalingEvent o2) {
+                return Long.compare(o1.getSignalingTime(), o2.getSignalingTime()); //从小到大排序
+            }
+        });
+
+        private Slot(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
+        public void add(SignalingEvent event) {
+            currentEvents.add(event);
+        }
+
+        public SignalingEvent[] toArray() {
+            return (SignalingEvent[]) currentEvents.toArray();
+        }
+
+        public SignalingEvent last() {
+            return currentEvents.last(); //返回时间最大的那个
+        }
+    }
+
 
 }
