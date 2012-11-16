@@ -59,6 +59,9 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (recentDays) {
+            logger.debug("before update------------------------------------");
+            logger.debug(String.format("%d",latestAge));
+            logger.debug(String.format("%s",Arrays.toString(recentDays)));
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
@@ -70,6 +73,9 @@ public class StayDaysPE extends ProcessingElement {
                     }
                     latestAge++;
                 }
+                logger.debug("after update------------------------------------");
+                logger.debug(String.format("%d",latestAge));
+                logger.debug(String.format("%s",Arrays.toString(recentDays)));
                 //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
                 if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
                     send(false);
@@ -104,6 +110,9 @@ public class StayDaysPE extends ProcessingElement {
                 logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
             }
             synchronized (recentDays) {
+                logger.debug("before event------------------------------------");
+                logger.debug(String.format("%d",latestAge));
+                logger.debug(String.format("%s",Arrays.toString(recentDays)));
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 long age = event.getEndAge();
@@ -116,6 +125,7 @@ public class StayDaysPE extends ProcessingElement {
                 }
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
                 logger.debug(String.format("%s %s: days:%d",statisticsName,imsi,getMatchesDays(recentDays)));
+                logger.debug("after event------------------------------------");
                 logger.debug(String.format("%d",latestAge));
                 logger.debug(String.format("%s",Arrays.toString(recentDays)));
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
