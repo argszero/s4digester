@@ -200,12 +200,14 @@ public class StayHoursPE extends ProcessingElement {
         private void remove(Slot slot) {
             if (slot != null) {
                 SignalingEvent[] events = slot.toArray();
-                long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
-                stayTimeOutWindow += slotStayTime;
-                stayTimeInWindow -= slotStayTime;
-                SignalingEvent lastOutWindowEvent = events[events.length - 1];
-                insideOutWindow = isInside(lastOutWindowEvent);
-                eventTimeOutWindow = lastOutWindowEvent.getSignalingTime();
+                if(events.length>0){
+                    long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
+                    stayTimeOutWindow += slotStayTime;
+                    stayTimeInWindow -= slotStayTime;
+                    SignalingEvent lastOutWindowEvent = events[events.length - 1];
+                    insideOutWindow = isInside(lastOutWindowEvent);
+                    eventTimeOutWindow = lastOutWindowEvent.getSignalingTime();
+                }
             }
         }
 
