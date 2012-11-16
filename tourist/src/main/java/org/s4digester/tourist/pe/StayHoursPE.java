@@ -166,8 +166,8 @@ public class StayHoursPE extends ProcessingElement {
             if (eventTime >= eventTImeInWindow - windowSize) {
                 Slot slot = window.add(event);
                 remove(start, end, slot);
-                SignalingEvent[] eventArray = (SignalingEvent[]) window.firstSlot.toArray();
-                if (event.equals(eventArray.length - 1)) {
+                SignalingEvent[] eventArray = window.firstSlot.toArray();
+                if (event.equals(eventArray[eventArray.length - 1])) {
                     //如果event就是最新的
                     boolean isInsideNow = isInside(event);
                     stayTimeInWindow += calc(start, end, insideInWindow, eventTImeInWindow, event);
