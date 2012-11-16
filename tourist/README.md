@@ -54,8 +54,8 @@ StayHoursPE   StayHoursPE StayHoursPE                StayHoursPE StayHoursPE    
     * TimeUpdateEvent
         * 每个StayHoursPE,每接收到一个信令，都向所有StayHoursPE发出一个TimeUpdateEvent
     * AgeUpdateEvent
-        * StayHoursPE在接受到信令时，不需要考虑是否需要发出AgeUpdate   
-        * StayHoursPE在接受到TimeUpdateEvent信令时，检查所有未离开用户。如果Age变更了，则发出AgeUpdateEvent
+        * StayHoursPE在接受到信令时，根据周期是否发生变更发出AgeUpdate（由于有多个StayHoursPE，所以会重复发送)
+        * StayHoursPE在接受到TimeUpdateEvent信令时，检查所有未离开用户。
         * StayDaysPE接受到AgeUpdateEvent后，判断当前用户是否还符合条件，如果原先符合条件，本次不符合条件，则发出不符合条件的时间
 
 # 窗口问题

@@ -62,6 +62,7 @@ public class StayHoursPE extends ProcessingElement {
     public void onEvent(SignalingEvent event) {
         //首先发送TimeUpdateEvent
         sendTimeUpdateEvent(event.getSignalingTime());
+        checkAndSendAgeUpdateEvent(event);
         synchronized (status) {
             boolean matchesBefore = isMatches(status.getStayTime());
             boolean inSideBefore = status.insideInWindow;
@@ -73,6 +74,17 @@ public class StayHoursPE extends ProcessingElement {
             boolean inSideNow = status.insideInWindow;
             if (inSideBefore ^ inSideNow) {
                 sendEnterOrLeaveEvent(status.getImsi(), inSideNow);
+            }
+        }
+    }
+
+    private void checkAndSendAgeUpdateEvent(SignalingEvent event) {
+        synchronized (status) {
+            long latestAge = getNextAge(status.getEventTImeInWindow(), end);
+            long newAge = getNextAge(event.getSignalingTime(), end);
+            if (newAge > latestAge) { //如果统计周期变更
+                status.reset(event.getSignalingTime());
+                sendAgeUpdateEvent(newAge, event.getSignalingTime());
             }
         }
     }
@@ -89,11 +101,7 @@ public class StayHoursPE extends ProcessingElement {
                     && isMatches(status.getStayTime() + event.getSignalingTime() - status.getEventTImeInWindow())) { //并且到当前的停留时间满足条件
                 send(status.getImsi(), latestAge, true);
             }
-            long newAge = getNextAge(event.getSignalingTime(), end);
-            if (newAge > latestAge) { //如果统计周期变更
-                status.reset(event.getSignalingTime());
-                sendAgeUpdateEvent(newAge, event.getSignalingTime());
-            }
+
         }
     }
 
