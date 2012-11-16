@@ -1,5 +1,6 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
@@ -91,6 +92,9 @@ public class StayDaysPE extends ProcessingElement {
     }
 
     public void onEvent(StayHoursEvent event) {
+        if (logger.isTraceEnabled()) {
+            logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
+        }
         if (statisticsName.equals(event.getStatisticsName())) {
             synchronized (recentDays) {
                 imsi = event.getImsi();

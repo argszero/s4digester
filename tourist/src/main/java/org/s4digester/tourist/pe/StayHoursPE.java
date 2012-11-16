@@ -107,6 +107,7 @@ public class StayHoursPE extends ProcessingElement {
         StayHoursEvent event = new StayHoursEvent();
         event.setEndAge(age);
         event.setMatches(matches);
+        event.setImsi(imsi);
         event.setStatisticsName(statisticsName);
         emit(event, streams);
     }
