@@ -112,7 +112,7 @@ public class StayDaysPE extends ProcessingElement {
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
                 logger.debug(String.format("%s %s: days:%d",statisticsName,imsi,getMatchesDays(recentDays)));
                 logger.debug(String.format("%d",latestAge));
-                logger.debug(String.format("%d",Arrays.toString(recentDays)));
+                logger.debug(String.format("%s",Arrays.toString(recentDays)));
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }
