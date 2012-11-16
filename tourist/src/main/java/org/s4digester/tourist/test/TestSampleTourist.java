@@ -16,7 +16,7 @@ import static org.s4digester.tourist.test.TestUtils.trans;
 /**
  * 测试刚好符合条件的景区游客：连续六天，每天早上8点到景区，11:00:01离开。下午18:00到景区，23:00:01离开。
  * 预期结果：
- * 日志： o.s.tourist.pe.JoinAndPrintPE - Latest Tourist List:
+ * 日志： o.s.tourist.pe.TouristPE - Latest Tourist List:
  * A
  *
  * 主要日志：
@@ -24,9 +24,9 @@ import static org.s4digester.tourist.test.TestUtils.trans;
  * StayScenicDuringNightPE - receive Signaling:  晚上检测的PE接收到信令
  * Daytime5In10PE - receive StayScenicDuringDaytimeEvent  白天有一天满足条件，检测10天内5天的PE开始处理
  * Night5In10PE - receive StayScenicDuringNightEvent  晚上有一天满足条件，检测10天内5天的PE开始处理
- * JoinAndPrintPE - receive AgedImsiListEvent:{"imsi":"A","matches":false  检测到A不符合最终条件
- * JoinAndPrintPE - receive AgedImsiListEvent:{"imsi":"A","matches":true  检测到A符合最终条件
- * JoinAndPrintPE - Latest Tourist List: 输出最终列表
+ * TouristPE - receive AgedImsiListEvent:{"imsi":"A","matches":false  检测到A不符合最终条件
+ * TouristPE - receive AgedImsiListEvent:{"imsi":"A","matches":true  检测到A符合最终条件
+ * TouristPE - Latest Tourist List: 输出最终列表
  */
 public class TestSampleTourist {
     public static void main(String[] args) throws IOException, ParseException {

@@ -11,7 +11,7 @@ import static org.s4digester.tourist.test.TestUtils.trans;
 
 /**
  * 测试1000个用户，每个用户每天100条信令，其中当用户为A100,A300,A500时，符合景区条件，其他不符合景区条件
- * 预期结果：JoinAndPrintPE - Latest Tourist List:
+ * 预期结果：TouristPE - Latest Tourist List:
  A2
  A4
  A321

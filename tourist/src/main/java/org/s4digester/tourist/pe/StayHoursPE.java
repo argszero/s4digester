@@ -5,10 +5,7 @@ import org.apache.s4.base.Event;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
-import org.s4digester.tourist.event.AgeUpdateEvent;
-import org.s4digester.tourist.event.SignalingEvent;
-import org.s4digester.tourist.event.StayHoursEvent;
-import org.s4digester.tourist.event.TimeUpdateEvent;
+import org.s4digester.tourist.event.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +34,7 @@ public class StayHoursPE extends ProcessingElement {
     private final long stayTime;//停留时间阀值 ，比如3个小时，即 3*60*60*1000
     private String statisticsName;
     private Status status = new Status();
+    private Stream<EnterOrLeaveEvent>[] enterOrLeaveEventStreams;
 
 
     public StayHoursPE(App app, long start, long end, long stayTime, String statisticsName) {
@@ -64,10 +62,15 @@ public class StayHoursPE extends ProcessingElement {
         sendTimeUpdateEvent(event.getSignalingTime());
         synchronized (status) {
             boolean matchesBefore = isMatches(status.getStayTime());
+            boolean inSideBefore = status.insideInWindow;
             status.addEvent(event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
             if (matchesBefore ^ matchesNow) {
                 send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
+            }
+            boolean inSideNow = status.insideInWindow;
+            if (inSideBefore ^ inSideNow) {
+                sendEnterOrLeaveEvent(status.getImsi(), inSideNow);
             }
         }
     }
@@ -114,6 +117,12 @@ public class StayHoursPE extends ProcessingElement {
         emit(event, timeUpdateEventStreams);
     }
 
+    private void sendEnterOrLeaveEvent(String imsi, boolean enter) {
+        EnterOrLeaveEvent event = new EnterOrLeaveEvent();
+        event.setEnter(enter);
+        event.setImsi(imsi);
+        emit(event, enterOrLeaveEventStreams);
+    }
 
     @Override
     public <T extends Event> void emit(T event, Stream<T>[] streamArray) {
@@ -132,6 +141,10 @@ public class StayHoursPE extends ProcessingElement {
         this.streams = streams;
     }
 
+    public void setEnterOrLeaveEventStreams(Stream<EnterOrLeaveEvent>... enterOrLeaveEventStreams) {
+        this.enterOrLeaveEventStreams = enterOrLeaveEventStreams;
+    }
+
     private static class Status {
         String imsi = "";
         private long stayTimeOutWindow;
@@ -146,6 +159,7 @@ public class StayHoursPE extends ProcessingElement {
         public void addEvent(SignalingEvent event) {
             imsi = event.getImsi();
             long eventTime = event.getSignalingTime();
+
             if (eventTime >= eventTImeInWindow - windowSize) {
                 Slot slot = window.add(event);
                 remove(slot);
@@ -165,6 +179,7 @@ public class StayHoursPE extends ProcessingElement {
             }
         }
 
+
         private long calc(boolean lastInSide, long lastEventTime, SignalingEvent[]... signalingEvents) {
             long stayTime = 0;
             for (SignalingEvent[] events : signalingEvents) {
@@ -183,7 +198,7 @@ public class StayHoursPE extends ProcessingElement {
         }
 
         private void remove(Slot slot) {
-            if(slot!=null){
+            if (slot != null) {
                 SignalingEvent[] events = slot.toArray();
                 long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
                 stayTimeOutWindow += slotStayTime;
@@ -290,7 +305,7 @@ public class StayHoursPE extends ProcessingElement {
         }
 
         public SignalingEvent[] toArray() {
-            return (SignalingEvent[]) currentEvents.toArray();
+            return (SignalingEvent[]) currentEvents.toArray(new Object[0]);
         }
 
         public SignalingEvent last() {

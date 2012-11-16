@@ -79,7 +79,7 @@ public class StayDaysPE extends ProcessingElement {
     }
 
     private boolean isDaysMatches(long days) {
-        return days < 5;
+        return days >= 5;
     }
 
     private long getMatchesDays(boolean[] recentDays) {
