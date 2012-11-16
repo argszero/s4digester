@@ -201,7 +201,7 @@ public class StayHoursPE extends ProcessingElement {
                 long lastEndAge = getNextAge(lastEventTime, end);
                 long startTime = (start < end ? lastEndAge : lastEndAge - 1) * 24 * 60 * 60 * 1000 + start; //统计起点，对于白天，则为当天，对于晚上，为结束的头一天
                 long endTime = lastEndAge * 24 * 60 * 60 * 1000 + end; //统计终点
-                return max(min(end, event.getSignalingTime()), start) - min(max(lastEventTime, start), end);
+                return max(min(endTime, event.getSignalingTime()), startTime) - min(max(lastEventTime, startTime), endTime);
             } else return 0;
         }
 
