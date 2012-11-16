@@ -27,29 +27,29 @@ public class TestSampleWorker {
         OutputStream out = socket.getOutputStream();
 
         IOUtils.write(trans("A,2012-01-01 08:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-01 11:00:01,home,home\r\n"), out);
-        IOUtils.write(trans("A,2012-01-01 18:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-01 23:00:01,home,home\r\n"), out);
-
-        IOUtils.write(trans("A,2012-01-02 08:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-02 11:00:01,home,home\r\n"), out);
-        IOUtils.write(trans("A,2012-01-02 18:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-02 23:00:01,home,home\r\n"), out);
-
-        IOUtils.write(trans("A,2012-01-03 08:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-03 11:00:01,home,home\r\n"), out);
-        IOUtils.write(trans("A,2012-01-03 18:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-03 23:00:01,home,home\r\n"), out);
-
-        IOUtils.write(trans("A,2012-01-04 08:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-04 11:00:01,home,home\r\n"), out);
-        IOUtils.write(trans("A,2012-01-04 18:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-04 23:00:01,home,home\r\n"), out);
-
-        IOUtils.write(trans("A,2012-01-05 08:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-05 11:00:01,home,home\r\n"), out);
-        IOUtils.write(trans("A,2012-01-05 18:00:00,tourist,tourist\r\n"), out);
-        IOUtils.write(trans("A,2012-01-05 23:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-01 11:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-01 18:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-01 23:00:01,home,home\r\n"), out);
+//
+//        IOUtils.write(trans("A,2012-01-02 08:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-02 11:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-02 18:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-02 23:00:01,home,home\r\n"), out);
+//
+//        IOUtils.write(trans("A,2012-01-03 08:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-03 11:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-03 18:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-03 23:00:01,home,home\r\n"), out);
+//
+//        IOUtils.write(trans("A,2012-01-04 08:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-04 11:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-04 18:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-04 23:00:01,home,home\r\n"), out);
+//
+//        IOUtils.write(trans("A,2012-01-05 08:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-05 11:00:01,home,home\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-05 18:00:00,tourist,tourist\r\n"), out);
+//        IOUtils.write(trans("A,2012-01-05 23:00:01,home,home\r\n"), out);
 
 
 

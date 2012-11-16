@@ -245,10 +245,9 @@ public class StayHoursPE extends ProcessingElement {
             //imsi = "";  //imsi不会变，不需要重新初始化
             stayTimeOutWindow = 0; //新周期，窗口外的停留时间为0
             stayTimeInWindow = 0;  //新周期，窗口内的停留时间为0
-            SignalingEvent lastEvent = window.firstSlot.last();
-            insideOutWindow = isInside(lastEvent);
-            insideInWindow = insideOutWindow;
-            eventTimeOutWindow = lastEvent.getSignalingTime();
+            insideOutWindow = insideInWindow; //新周期，窗口外的状态变成原先窗口内的状态(窗口里的数据移到了窗口外)
+            insideInWindow = insideOutWindow;//窗口内没有数据，所以和窗口外窗口状态一致
+            eventTimeOutWindow = eventTime;
             eventTImeInWindow = eventTimeOutWindow;
             window = new Window();
         }
