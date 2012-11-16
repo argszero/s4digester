@@ -114,9 +114,6 @@ public class StayHoursPE extends ProcessingElement {
         emit(event, timeUpdateEventStreams);
     }
 
-    public void onEvent(AgeUpdateEvent event) {
-
-    }
 
     @Override
     public <T extends Event> void emit(T event, Stream<T>[] streamArray) {
@@ -186,13 +183,15 @@ public class StayHoursPE extends ProcessingElement {
         }
 
         private void remove(Slot slot) {
-            SignalingEvent[] events = slot.toArray();
-            long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
-            stayTimeOutWindow += slotStayTime;
-            stayTimeInWindow -= slotStayTime;
-            SignalingEvent lastOutWindowEvent = events[events.length - 1];
-            insideOutWindow = isInside(lastOutWindowEvent);
-            eventTimeOutWindow = lastOutWindowEvent.getSignalingTime();
+            if(slot!=null){
+                SignalingEvent[] events = slot.toArray();
+                long slotStayTime = calc(insideOutWindow, eventTimeOutWindow, events);
+                stayTimeOutWindow += slotStayTime;
+                stayTimeInWindow -= slotStayTime;
+                SignalingEvent lastOutWindowEvent = events[events.length - 1];
+                insideOutWindow = isInside(lastOutWindowEvent);
+                eventTimeOutWindow = lastOutWindowEvent.getSignalingTime();
+            }
         }
 
         private boolean isInside(SignalingEvent event) {
