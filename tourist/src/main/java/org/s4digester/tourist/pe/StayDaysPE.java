@@ -2,7 +2,6 @@ package org.s4digester.tourist.pe;
 
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
-import org.apache.commons.lang.StringUtils;
 import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
@@ -59,9 +58,11 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (recentDays) {
-            logger.debug(String.format("%s before update------------------------------------",statisticsName));
-            logger.debug(String.format("%d",latestAge));
-            logger.debug(String.format("%s",Arrays.toString(recentDays)));
+            if ("night".equals(statisticsName)) {
+                logger.debug(String.format("%s before update------------------------------------", imsi));
+                logger.debug(String.format("%s %d", imsi,latestAge));
+                logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
+            }
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
@@ -73,9 +74,11 @@ public class StayDaysPE extends ProcessingElement {
                     }
                     latestAge++;
                 }
-                logger.debug(String.format("%s after update------------------------------------",statisticsName));
-                logger.debug(String.format("%d",latestAge));
-                logger.debug(String.format("%s",Arrays.toString(recentDays)));
+                if ("night".equals(statisticsName)) {
+                    logger.debug(String.format("%s after update------------------------------------", imsi));
+                    logger.debug(String.format("%s %d",imsi, latestAge));
+                    logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
+                }
                 //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
                 if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
                     send(false);
@@ -110,9 +113,11 @@ public class StayDaysPE extends ProcessingElement {
                 logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
             }
             synchronized (recentDays) {
-                logger.debug(String.format("%s before event------------------------------------",statisticsName));
-                logger.debug(String.format("%d",latestAge));
-                logger.debug(String.format("%s",Arrays.toString(recentDays)));
+                if ("night".equals(statisticsName)) {
+                    logger.debug(String.format("%s before event------------------------------------", imsi));
+                    logger.debug(String.format("%s %d",imsi, latestAge));
+                    logger.debug(String.format("%s %s", imsi,Arrays.toString(recentDays)));
+                }
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 long age = event.getEndAge();
@@ -124,10 +129,12 @@ public class StayDaysPE extends ProcessingElement {
                     //忽略 ，比如当前最新时间为10号，至少要三个小时后才收到11号符合条件，此时AgeUpdateEvent应该早就到了
                 }
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
-                logger.debug(String.format("%s %s: days:%d",statisticsName,imsi,getMatchesDays(recentDays)));
-                logger.debug(String.format("%s after event------------------------------------",statisticsName));
-                logger.debug(String.format("%d",latestAge));
-                logger.debug(String.format("%s",Arrays.toString(recentDays)));
+                if ("night".equals(statisticsName)) {
+                    logger.debug(String.format("%s %s: days:%d", statisticsName, imsi, getMatchesDays(recentDays)));
+                    logger.debug(String.format("%s after event------------------------------------", imsi));
+                    logger.debug(String.format("%s %d",imsi, latestAge));
+                    logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
+                }
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }
