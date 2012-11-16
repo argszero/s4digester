@@ -107,6 +107,7 @@ public class StayDaysPE extends ProcessingElement {
                     //忽略 ，比如当前最新时间为10号，至少要三个小时后才收到11号符合条件，此时AgeUpdateEvent应该早就到了
                 }
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
+                logger.debug(String.format("%s %s: days:%d",statisticsName,imsi,getMatchesDays(recentDays)));
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }

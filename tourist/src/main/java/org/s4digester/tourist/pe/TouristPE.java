@@ -48,7 +48,7 @@ public class TouristPE extends ProcessingElement {
 
     public void onEvent(StayDaysEvent event) {
         if (logger.isTraceEnabled()) {
-            logger.trace("receive AgedImsiListEvent:{}", new Gson().toJson(event));
+            logger.trace("receive StayDaysEvent:{}", new Gson().toJson(event));
         }
         //对于同一个age，可能由多个PE依次发过来
         String imsi = event.getImsi();
