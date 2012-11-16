@@ -72,6 +72,7 @@ public class StayDaysPE extends ProcessingElement {
                     for (int i = 1; i < recentDays.length; i++) {
                         recentDays[i - 1] = recentDays[i];
                     }
+                    recentDays[recentDays.length-1]=false;
                     latestAge++;
                 }
                 if ("night".equals(statisticsName)) {
