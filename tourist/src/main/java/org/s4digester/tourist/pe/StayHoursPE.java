@@ -69,9 +69,11 @@ public class StayHoursPE extends ProcessingElement {
             boolean inSideBefore = status.insideInWindow;
             status.addEvent(start, end, event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
-            if(event.getImsi().equals("Worker4")){
+            if(event.getImsi().equals("Worker4")&&statisticsName.equals("night")){
                 StringBuffer message = new StringBuffer("aaaa").append(new Gson().toJson(event));
                 message.append("stayTime:").append(status.getStayTime());
+                message.append("matchesBefore:").append(matchesBefore);
+                message.append("matchesNow:").append(matchesNow);
                 logger.trace(message.toString());
             }
             if (matchesBefore ^ matchesNow) {
