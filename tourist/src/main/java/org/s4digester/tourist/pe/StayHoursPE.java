@@ -69,13 +69,6 @@ public class StayHoursPE extends ProcessingElement {
             boolean inSideBefore = status.insideInWindow;
             status.addEvent(start, end, event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
-            if (this.getId().equals("Worker4") && statisticsName.equals("night")) {
-                StringBuffer message = new StringBuffer("aaaa").append(new Gson().toJson(event));
-                message.append("stayTime:").append(status.getStayTime());
-                message.append("matchesBefore:").append(matchesBefore);
-                message.append("matchesNow:").append(matchesNow);
-                logger.trace(message.toString());
-            }
             if (matchesBefore ^ matchesNow) {
                 send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
             }
@@ -90,9 +83,6 @@ public class StayHoursPE extends ProcessingElement {
         synchronized (status) {
             long latestAge = getNextAge(status.getEventTImeInWindow(), end);
             long newAge = getNextAge(event.getSignalingTime(), end);
-            if (statisticsName.equals("night") && this.getId().equals("Worker4")) {
-                logger.trace("bbbb: " + latestAge + "~" + newAge);
-            }
             if (newAge > latestAge) { //如果统计周期变更
                 status.reset(event.getSignalingTime());
                 sendAgeUpdateEvent(newAge, event.getSignalingTime());
