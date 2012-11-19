@@ -19,9 +19,14 @@ import static org.s4digester.tourist.test.TestUtils.newBuffer;
  * <p/>
  * 预期结果：
  * 日志：
- * StayDaysPE - daytime:receive Signaling:{"imsi":"A","endAge":15341,"matches":true //白天符合条件5次
- * StayDaysPE - night:receive Signaling:{"imsi":"A","endAge":15341,"matches":true //晚上符合条件5次
- * TouristPE - new worker:Worker1，Worker2，Worker3，Worker4 //判断出Worker1，Worker2，Worker3，Worker4是景区工作人员
+ * 1. 识别出工作人员
+ * TouristPE - Workers: {daytime:[Worker1],night:[Worker3,Worker2,Worker4]}
+ * 2. 游客进入景区后，识别出游客
+ * TouristPE - Tourists Update:[Tourist1]
+ * 3. 游客离开景区后，在游客列表中删除游客
+ * TouristPE - Tourists Update:[]
+ * 4. 在工作人员工作不足5天时，认为其为游客
+ * TouristPE - Tourists Update:[Worker1]
  */
 public class TestSampleWorker {
     public static void main(String[] args) throws IOException, ParseException {
@@ -35,10 +40,10 @@ public class TestSampleWorker {
                     .add("Worker2", "18:00:00", "23:01:00", day > 0 && day < endDays, day > 0 && day < endDays)
                     .add("Worker3", "19:00:00", "01:01:00", day > 0 && day < endDays, day > 1 && day < lastDays)
                     .add("Worker4", "02:00:00", "07:01:00", day > 0 && day < endDays, day > 0 && day < endDays)
-//                    .add("Tourist1", "08:00:00", "09:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
-//                    .add("Tourist2", "18:00:00", "19:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
-//                    .add("Tourist3", "23:00:00", "01:00:00", day > 0 && day < endDays, day > 1 && day < lastDays)
-//                    .add("Tourist4", "05:00:00", "07:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+                    .add("Tourist1", "08:00:00", "09:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+                    .add("Tourist2", "18:00:00", "19:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+                    .add("Tourist3", "23:00:00", "01:00:00", day > 0 && day < endDays, day > 1 && day < lastDays)
+                    .add("Tourist4", "05:00:00", "07:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
                     .write(out, day);
         }
         out.close();

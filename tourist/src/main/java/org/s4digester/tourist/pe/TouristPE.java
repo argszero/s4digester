@@ -58,20 +58,32 @@ public class TouristPE extends ProcessingElement {
             boolean isUpdated = false;
             if (matches) {
                 isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).add(imsi);
+                if (isUpdated) {
+                    //从游客列表中删除该工作人员
+                    join.tourists.remove(imsi);
+                }
             } else {
                 isUpdated = join.workerImsiSetMap.get(event.getStatisticsName()).remove(imsi);
             }
             if (isUpdated) {
                 if (logger.isDebugEnabled()) {
-                    StringBuffer sb = new StringBuffer("Workers:");
+                    StringBuffer sb = new StringBuffer("Workers:{");
                     for (Map.Entry<String, Set<String>> entry : join.workerImsiSetMap.entrySet()) {
-                        sb.append("\n    ").append(entry.getKey()).append(":").append(StringUtils.join(entry.getValue(), ","));
+                        sb.append(entry.getKey()).append(":[").append(StringUtils.join(entry.getValue(), "],"));
                     }
+                    sb.deleteCharAt(sb.length() - 1);
+                    sb.append("}");
                     logger.debug(sb.toString());
                 }
             }
 
         }
+    }
+
+    public static void main(String[] args) {
+        StringBuffer sb = new StringBuffer("123");
+        sb.deleteCharAt(sb.length() - 1);
+        System.out.println(sb.toString());
     }
 
     public void onEvent(EnterOrLeaveEvent event) {
@@ -80,23 +92,18 @@ public class TouristPE extends ProcessingElement {
                 logger.trace("receive EnterOrLeaveEvent:{}", new Gson().toJson(event));
             }
             String imsi = event.getImsi();
-            boolean isWorker =false;
-            for (Map.Entry<String, Set<String>> entry : join.workerImsiSetMap.entrySet()) {
-                isWorker = entry.getValue().contains(imsi);
-            }
-            if(!isWorker){
-                boolean isUpdated = false;
-                if (event.isEnter()) { //用户进入，如果是工作人员，则忽略，如果不是，则添加到游客列表
-                    if (!isWorker(imsi)) {
-                        isUpdated = join.tourists.add(imsi);
-                    }
-                } else {//用户离开，从游客列表中删除
-                    isUpdated = join.tourists.remove(imsi);
+
+            boolean isUpdated = false;
+            if (event.isEnter()) { //用户进入，如果是工作人员，则忽略，如果不是，则添加到游客列表
+                if (!isWorker(imsi)) {
+                    isUpdated = join.tourists.add(imsi);
                 }
-                if (isUpdated) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(format("Tourists Update:%s", StringUtils.join(join.tourists, ",")));
-                    }
+            } else {//用户离开，从游客列表中删除
+                isUpdated = join.tourists.remove(imsi);
+            }
+            if (isUpdated) {
+                if (logger.isInfoEnabled()) {
+                    logger.info(format("Tourists Update:%s", StringUtils.join(join.tourists, ",")));
                 }
             }
         }
