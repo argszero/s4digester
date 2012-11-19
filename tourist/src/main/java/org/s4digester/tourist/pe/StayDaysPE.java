@@ -58,11 +58,6 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (recentDays) {
-            if ("night".equals(statisticsName)) {
-                logger.debug(String.format("%s before update------------------------------------", imsi));
-                logger.debug(String.format("%s %d", imsi,latestAge));
-                logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
-            }
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
@@ -74,11 +69,6 @@ public class StayDaysPE extends ProcessingElement {
                     }
                     recentDays[recentDays.length-1]=false;
                     latestAge++;
-                }
-                if ("night".equals(statisticsName)) {
-                    logger.debug(String.format("%s after update------------------------------------", imsi));
-                    logger.debug(String.format("%s %d",imsi, latestAge));
-                    logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
                 }
                 //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
                 if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
@@ -110,15 +100,12 @@ public class StayDaysPE extends ProcessingElement {
 
     public void onEvent(StayHoursEvent event) {
         if (statisticsName.equals(event.getStatisticsName())) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
-            }
+
+//            if (logger.isTraceEnabled()) {
+//                logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
+//            }
             synchronized (recentDays) {
-                if ("night".equals(statisticsName)) {
-                    logger.debug(String.format("%s before event------------------------------------", imsi));
-                    logger.debug(String.format("%s %d",imsi, latestAge));
-                    logger.debug(String.format("%s %s", imsi,Arrays.toString(recentDays)));
-                }
+                String message = String.format("statisticsName:%s,imsi:%s,event:%s ,latestAge:%s,status:%s,", statisticsName, imsi, new Gson().toJson(event), latestAge, Arrays.toString(recentDays));
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 long age = event.getEndAge();
@@ -130,16 +117,16 @@ public class StayDaysPE extends ProcessingElement {
                     //忽略 ，比如当前最新时间为10号，至少要三个小时后才收到11号符合条件，此时AgeUpdateEvent应该早就到了
                 }
                 boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
-                if ("night".equals(statisticsName)) {
-                    logger.debug(String.format("%s %s: days:%d", statisticsName, imsi, getMatchesDays(recentDays)));
-                    logger.debug(String.format("%s after event------------------------------------", imsi));
-                    logger.debug(String.format("%s %d",imsi, latestAge));
-                    logger.debug(String.format("%s %s",imsi, Arrays.toString(recentDays)));
-                }
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }
+                message += String.format(",endStatus:%s", Arrays.toString(recentDays));
+                if (logger.isTraceEnabled()) {
+                    logger.trace(message);
+                }
             }
+
+
         }
     }
 
