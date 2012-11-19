@@ -22,7 +22,15 @@ import java.util.List;
  * 4：当前用户在景区
  * <p/>
  * 所以，景区游客其实是当前在景区的游客，并且不是在景区工作的游客
- * //注意：流的名称不能大于20个字符，否则status命令会报错
+ * //注意：
+ * 1. 流的名称不能大于20个字符，否则status命令会报错
+ * 2. PE如果要在一个Node上生成多个实例，需要添加@ThreadSafe注解
+ * 3. PE的实例属性，除了配置参数，不能再构造函数中初始化
+ *
+ *
+ * 景区游客检测的App，可以简单理解为两条线：
+ * 1. 实时更新工作人员列表
+ * 2. 当每个用户进入景区后，判断其是否为工作人员，否则添加到游客列表。用户离开景区后从游客列表删除。
  */
 public class TouristApp extends App {
     private Logger logger = LoggerFactory.getLogger(getClass());
