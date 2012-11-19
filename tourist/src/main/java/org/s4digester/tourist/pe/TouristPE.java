@@ -69,7 +69,7 @@ public class TouristPE extends ProcessingElement {
                 if (logger.isDebugEnabled()) {
                     StringBuffer sb = new StringBuffer("Workers:{");
                     for (Map.Entry<String, Set<String>> entry : join.workerImsiSetMap.entrySet()) {
-                        sb.append(entry.getKey()).append(":[").append(StringUtils.join(entry.getValue(), "],"));
+                        sb.append(entry.getKey()).append(":[").append(StringUtils.join(entry.getValue(), ",")).append("]");
                     }
                     sb.deleteCharAt(sb.length() - 1);
                     sb.append("}");
