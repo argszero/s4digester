@@ -58,7 +58,7 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (recentDays) {
-            String message =String.format( "update age from %s to %s,\n before: %s,%s",latestAge,age,latestAge,Arrays.toString(recentDays));
+            String message =String.format( "statisticsName:%s,update age from %s to %s,\n before: %s,%s",statisticsName,latestAge,age,latestAge,Arrays.toString(recentDays));
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
