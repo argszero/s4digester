@@ -25,8 +25,8 @@ import java.util.Arrays;
 @ThreadSafe
 public class StayDaysPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    boolean[] recentDays = new boolean[10]; //最近10天是否满足条件，默认全为false
-    long latestAge = -1;
+    boolean[] recentDays;//最近10天是否满足条件，默认全为false
+    long latestAge;
     private Stream<StayDaysEvent>[] streams;
     private final String statisticsName;
     private String imsi;
@@ -34,6 +34,8 @@ public class StayDaysPE extends ProcessingElement {
     public StayDaysPE(App app, String name) {
         super(app);
         this.statisticsName = name;
+        recentDays = new boolean[10];
+        latestAge = -1;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (this) {
-            String message =String.format( "threadId:%s,this:%s,statisticsName:%s,update age from %s to %s,\n before: %s,%s",Thread.currentThread().getId(), this.toString(),statisticsName,latestAge,age,latestAge,Arrays.toString(recentDays));
+            String message = String.format("threadId:%s,this:%s,statisticsName:%s,update age from %s to %s,\n before: %s,%s", Thread.currentThread().getId(), this.toString(), statisticsName, latestAge, age, latestAge, Arrays.toString(recentDays));
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
@@ -74,7 +76,7 @@ public class StayDaysPE extends ProcessingElement {
                     send(false);
                 }
             }
-            message+=String.format( "\n after: %s,%s",latestAge,Arrays.toString(recentDays));
+            message += String.format("\n after: %s,%s", latestAge, Arrays.toString(recentDays));
             if (logger.isTraceEnabled()) {
                 logger.trace(message);
             }
@@ -108,7 +110,7 @@ public class StayDaysPE extends ProcessingElement {
 //                logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
 //            }
             synchronized (this) {
-                String message = String.format("threadId:%s,this:%s,statisticsName:%s,imsi:%s,event:%s ,latestAge:%s,status:%s,",Thread.currentThread().getId(), this.toString(),statisticsName, imsi, new Gson().toJson(event), latestAge, Arrays.toString(recentDays));
+                String message = String.format("threadId:%s,this:%s,statisticsName:%s,imsi:%s,event:%s ,latestAge:%s,status:%s,", Thread.currentThread().getId(), this.toString(), statisticsName, imsi, new Gson().toJson(event), latestAge, Arrays.toString(recentDays));
                 imsi = event.getImsi();
                 boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 long age = event.getEndAge();
@@ -136,5 +138,4 @@ public class StayDaysPE extends ProcessingElement {
     public void setStreams(Stream<StayDaysEvent>... streams) {
         this.streams = streams;
     }
-
 }
