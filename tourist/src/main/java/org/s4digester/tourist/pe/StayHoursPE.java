@@ -7,6 +7,7 @@ import org.apache.s4.core.App;
 import org.apache.s4.core.ProcessingElement;
 import org.apache.s4.core.Stream;
 import org.s4digester.tourist.event.*;
+import org.s4digester.tourist.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
@@ -109,7 +109,7 @@ public class StayHoursPE extends ProcessingElement {
             long latestAge = getNextAge(status.getEventTImeInWindow(), end);
             if ((!isMatches(status.getStayTime()))  //如果用户当前不满足条件
                     && status.isInsideInWindow()  //并且用户还未离开
-                    && isMatches(status.getStayTime() + event.getSignalingTime() - status.getEventTImeInWindow())) { //并且到当前的停留时间满足条件
+                    && isMatches(status.getStayTime() + TimeUtil.calc(start, end, status.isInsideInWindow(), status.getEventTImeInWindow(), event.getSignalingTime()))) { //并且到当前的停留时间满足条件
                 send(status.getImsi(), latestAge, true);
             }
 
@@ -189,7 +189,7 @@ public class StayHoursPE extends ProcessingElement {
                 if (event.equals(eventArray[eventArray.length - 1])) {
                     //如果event就是最新的
                     boolean isInsideNow = isInside(event);
-                    stayTimeInWindow += calc(start, end, insideInWindow, eventTImeInWindow, event);
+                    stayTimeInWindow += TimeUtil.calc(start, end, insideInWindow, eventTImeInWindow, event.getSignalingTime());
                     insideInWindow = isInsideNow;
                     eventTImeInWindow = event.getSignalingTime();
                 } else {
@@ -206,22 +206,12 @@ public class StayHoursPE extends ProcessingElement {
             long stayTime = 0;
             for (SignalingEvent[] events : signalingEvents) {
                 for (SignalingEvent event : events) {
-                    stayTime += calc(start, end, lastInSide, lastEventTime, event);
+                    stayTime += TimeUtil.calc(start, end, lastInSide, lastEventTime, event.getSignalingTime());
                     lastInSide = isInside(event);
                     lastEventTime = event.getSignalingTime();
                 }
             }
             return stayTime;
-        }
-
-        private long calc(long start, long end, boolean lastInside, long lastEventTime, SignalingEvent event) {
-            //只有上次在景区，停留时间才累加，否则（一直不在景区，新进入景区），停留时间都不变
-            if (lastInside) {
-                long lastEndAge = getNextAge(lastEventTime, end);
-                long startTime = (start < end ? lastEndAge : lastEndAge - 1) * 24 * 60 * 60 * 1000 + start; //统计起点，对于白天，则为当天，对于晚上，为结束的头一天
-                long endTime = lastEndAge * 24 * 60 * 60 * 1000 + end; //统计终点
-                return max(min(endTime, event.getSignalingTime()), startTime) - min(max(lastEventTime, startTime), endTime);
-            } else return 0;
         }
 
         private void remove(long start, long end, Slot slot) {
