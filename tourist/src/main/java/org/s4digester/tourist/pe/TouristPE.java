@@ -72,14 +72,17 @@ public class TouristPE extends ProcessingElement {
 
     public void onEvent(EnterOrLeaveEvent event) {
         synchronized (join) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("receive EnterOrLeaveEvent:{}", new Gson().toJson(event));
+            }
             String imsi = event.getImsi();
             boolean isUpdated = false;
             if (event.isEnter()) { //用户进入，如果是工作人员，则忽略，如果不是，则添加到游客列表
-                if (!isWorker(event.getImsi())) {
-                    isUpdated = join.tourists.add(event.getImsi());
+                if (!isWorker(imsi)) {
+                    isUpdated = join.tourists.add(imsi);
                 }
             } else {//用户离开，从游客列表中删除
-                isUpdated = join.tourists.remove(event.getImsi());
+                isUpdated = join.tourists.remove(imsi);
             }
             if (isUpdated) {
                 logger.info(format("Tourists Update:%s", StringUtils.join(join.tourists, ",")));
