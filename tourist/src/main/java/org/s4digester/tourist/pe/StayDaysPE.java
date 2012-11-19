@@ -34,12 +34,12 @@ public class StayDaysPE extends ProcessingElement {
     public StayDaysPE(App app, String name) {
         super(app);
         this.statisticsName = name;
-        recentDays = new boolean[10];
         latestAge = -1;
     }
 
     @Override
     protected void onCreate() {
+        recentDays = new boolean[10];
     }
 
     @Override
@@ -57,6 +57,11 @@ public class StayDaysPE extends ProcessingElement {
             updateAge(age);
         }
     }
+
+//    @Override
+//    public String toString() {
+//        return "@"+this.hashCode()+"@"+this.recentDays.hashCode();
+//    }
 
     private void updateAge(long age) {
         synchronized (this) {
