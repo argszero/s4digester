@@ -69,7 +69,7 @@ public class StayDaysPE extends ProcessingElement {
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
-                long matchesDaysBefore = getMatchesDays(recentDays);// 1
+                boolean matchesBefore = isDaysMatches(getMatchesDays(recentDays));
                 while (age > latestAge) {
                     for (int i = 1; i < recentDays.length; i++) {
                         recentDays[i - 1] = recentDays[i];
@@ -77,8 +77,9 @@ public class StayDaysPE extends ProcessingElement {
                     recentDays[recentDays.length - 1] = false;
                     latestAge++;
                 }
-                if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
-                    send(false);
+                boolean matchesNow = isDaysMatches(getMatchesDays(recentDays));
+                if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
+                    send(matchesNow);
                 }
             }
         }
