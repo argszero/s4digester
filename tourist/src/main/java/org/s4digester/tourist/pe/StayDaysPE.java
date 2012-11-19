@@ -57,7 +57,7 @@ public class StayDaysPE extends ProcessingElement {
     public void onEvent(AgeUpdateEvent event) {
         if (statisticsName.equals(event.getStatisticsName())) {
             if (logger.isTraceEnabled()) {
-                logger.trace("receive StayDaysEvent:{}", new Gson().toJson(event));
+                logger.trace("receive AgeUpdateEvent:{}", new Gson().toJson(event));
             }
             long age = event.getAge();
             updateAge(age);
@@ -113,7 +113,7 @@ public class StayDaysPE extends ProcessingElement {
     public void onEvent(StayHoursEvent event) {
         if (statisticsName.equals(event.getStatisticsName())) {
             if (logger.isTraceEnabled()) {
-                logger.trace("{}:receive Signaling:{}", statisticsName, new Gson().toJson(event));
+                logger.trace("{}:receive StayHoursEvent:{}", statisticsName, new Gson().toJson(event));
             }
             synchronized (this) {
                 imsi = event.getImsi();

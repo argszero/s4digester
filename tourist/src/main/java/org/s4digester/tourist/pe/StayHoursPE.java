@@ -1,5 +1,6 @@
 package org.s4digester.tourist.pe;
 
+import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.s4.base.Event;
 import org.apache.s4.core.App;
@@ -13,10 +14,11 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
-import static org.s4digester.tourist.util.TimeUtil.*;
+import static org.s4digester.tourist.util.TimeUtil.getNextAge;
 
 /**
  * 每个Imsi一个实例
@@ -67,6 +69,11 @@ public class StayHoursPE extends ProcessingElement {
             boolean inSideBefore = status.insideInWindow;
             status.addEvent(start, end, event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
+            if(event.getImsi().equals("Worker4")){
+                StringBuffer message = new StringBuffer("aaaa").append(new Gson().toJson(event));
+                message.append("stayTime:").append(status.getStayTime());
+                logger.trace(message.toString());
+            }
             if (matchesBefore ^ matchesNow) {
                 send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
             }
