@@ -58,11 +58,11 @@ public class StayDaysPE extends ProcessingElement {
 
     private void updateAge(long age) {
         synchronized (recentDays) {
+            String message =String.format( "update age from %s to %s,\n before: %s,%s",latestAge,age,latestAge,Arrays.toString(recentDays));
             if (latestAge == -1) {
                 latestAge = age;
             } else if (age > latestAge) {
-                //左移
-                long matchesDaysBefore = getMatchesDays(recentDays);
+                long matchesDaysBefore = getMatchesDays(recentDays);// 1
                 while (age > latestAge) {
                     for (int i = 1; i < recentDays.length; i++) {
                         recentDays[i - 1] = recentDays[i];
@@ -70,10 +70,13 @@ public class StayDaysPE extends ProcessingElement {
                     recentDays[recentDays.length - 1] = false;
                     latestAge++;
                 }
-                //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
                 if (isDaysMatches(matchesDaysBefore) && isDaysMatches(getMatchesDays(recentDays))) {
                     send(false);
                 }
+            }
+            message+=String.format( "\n after: %s,%s",latestAge,Arrays.toString(recentDays));
+            if (logger.isTraceEnabled()) {
+                logger.trace(message);
             }
         }
     }
