@@ -1,7 +1,5 @@
 package org.s4digester.tourist.test;
 
-import static org.s4digester.tourist.util.TimeUtil.getNextAge;
-
 /**
  * Created with IntelliJ IDEA.
  * User: shaoaq
@@ -11,6 +9,15 @@ import static org.s4digester.tourist.util.TimeUtil.getNextAge;
  */
 public class T {
     public static void main(String[] args) {
-        System.out.println(getNextAge(1325419200000L,18*60*60*1000));
+        final String[] a = new String[10];
+        for (int i = 0; i < 10; i++) {
+            new Thread(){
+                @Override
+                public void run() {
+                    synchronized (a){
+                    }
+                }
+            }.start();
+        }
     }
 }
