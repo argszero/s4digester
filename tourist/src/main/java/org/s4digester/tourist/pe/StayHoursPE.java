@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.String.format;
@@ -65,10 +66,19 @@ public class StayHoursPE extends ProcessingElement {
         sendTimeUpdateEvent(event.getSignalingTime());
         checkAndSendAgeUpdateEvent(event);
         synchronized (status) {
+            StringBuffer sb= new StringBuffer().append("aaaa:").append(new Gson().toJson(event));
+
             boolean matchesBefore = isMatches(status.getStayTime());
             boolean inSideBefore = status.insideInWindow;
             status.addEvent(start, end, event);
             boolean matchesNow = isMatches(status.getStayTime());//如果添加了Event后，是否符合条件发生变更，则发出事件
+
+            sb.append(",stayTime:").append(status.getStayTime());
+
+            if(this.getId().equals("Worker3")&&statisticsName.equals("daytime")){
+                 logger.trace(sb.toString());
+            }
+
             if (matchesBefore ^ matchesNow) {
                 send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
             }
