@@ -34,11 +34,11 @@ public class TestSampleWorker {
                     .add("Worker1", "08:00:00", "12:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
                     .add("Worker2", "18:00:00", "23:01:00", day > 0 && day < endDays, day > 0 && day < endDays)
                     .add("Worker3", "19:00:00", "01:01:00", day > 0 && day < endDays, day > 1 && day < lastDays)
-                    .add("Worker4", "02:00:00", "07:01:00", day > 0 && day < endDays, day > 0 && day < endDays)
-                    .add("Tourist1", "08:00:00", "09:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
-                    .add("Tourist2", "18:00:00", "19:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
-                    .add("Tourist3", "23:00:00", "01:00:00", day > 0 && day < endDays, day > 1 && day < lastDays)
-                    .add("Tourist4", "05:00:00", "07:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+//                    .add("Worker4", "02:00:00", "07:01:00", day > 0 && day < endDays, day > 0 && day < endDays)
+//                    .add("Tourist1", "08:00:00", "09:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+//                    .add("Tourist2", "18:00:00", "19:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
+//                    .add("Tourist3", "23:00:00", "01:00:00", day > 0 && day < endDays, day > 1 && day < lastDays)
+//                    .add("Tourist4", "05:00:00", "07:00:00", day > 0 && day < endDays, day > 0 && day < endDays)
                     .write(out, day);
         }
         out.close();

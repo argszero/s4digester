@@ -11,6 +11,10 @@ import org.s4digester.tourist.event.StayHoursEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
+import static java.lang.String.format;
+
 /**
  * 判断用户停留天数是否满足条件的PE。
  * 使用一个boolean[]来保存最近10天用户是否满足条件。
@@ -52,6 +56,9 @@ public class StayDaysPE extends ProcessingElement {
      */
     public void onEvent(AgeUpdateEvent event) {
         if (statisticsName.equals(event.getStatisticsName())) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("receive StayDaysEvent:{}", new Gson().toJson(event));
+            }
             long age = event.getAge();
             updateAge(age);
         }
@@ -82,6 +89,11 @@ public class StayDaysPE extends ProcessingElement {
         event.setStatisticsName(statisticsName);
         event.setImsi(imsi);
         event.setMatches(matches);
+        if (!matches) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(format("%s mismatched:%s,latestAge:%s", imsi, Arrays.toString(recentDays), latestAge));
+            }
+        }
         emit(event, streams);
     }
 

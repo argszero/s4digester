@@ -67,7 +67,7 @@ public class TouristPE extends ProcessingElement {
                     for (Map.Entry<String, Set<String>> entry : join.workerImsiSetMap.entrySet()) {
                         sb.append("\n    ").append(entry.getKey()).append(":").append(StringUtils.join(entry.getValue(), ","));
                     }
-                    logger.info(format("Tourists Update:%s", StringUtils.join(join.tourists, ",")));
+                    logger.info(format("Workers Update:%s", StringUtils.join(join.tourists, ",")));
                     logger.debug(sb.toString());
                 }
             }
