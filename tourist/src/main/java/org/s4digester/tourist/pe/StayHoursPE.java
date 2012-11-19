@@ -36,7 +36,7 @@ public class StayHoursPE extends ProcessingElement {
     private final long end;  //结束时间，比如白天统计结束时间为18点，即18*60*60*1000  ，晚上统计结束时间为8点，即8*60*60*1000
     private final long stayTime;//停留时间阀值 ，比如3个小时，即 3*60*60*1000
     private String statisticsName;
-    private Status status = new Status();
+    private Status status;
     private Stream<EnterOrLeaveEvent>[] enterOrLeaveEventStreams;
 
 
@@ -52,6 +52,7 @@ public class StayHoursPE extends ProcessingElement {
     protected void onCreate() {
         logger.info("create {}", statisticsName);
         logger.info(format("%s:ZONE_OFFSET:%d", statisticsName, Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
+        status = new Status();
     }
 
     @Override
