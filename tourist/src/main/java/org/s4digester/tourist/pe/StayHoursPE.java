@@ -80,7 +80,7 @@ public class StayHoursPE extends ProcessingElement {
             }
 
             if (matchesBefore ^ matchesNow) {
-                send(status.getImsi(), getNextAge(status.getEventTImeInWindow(), end), matchesNow);
+                send(status.getImsi(), getNextAge(status.getEventTimeInWindow(), end), matchesNow);
             }
             boolean inSideNow = status.insideInWindow;
             if (inSideBefore ^ inSideNow) {
@@ -91,7 +91,7 @@ public class StayHoursPE extends ProcessingElement {
 
     private void checkAndSendAgeUpdateEvent(SignalingEvent event) {
         synchronized (status) {
-            long latestAge = getNextAge(status.getEventTImeInWindow(), end);
+            long latestAge = getNextAge(status.getEventTimeInWindow(), end);
             long newAge = getNextAge(event.getSignalingTime(), end);
             if (newAge > latestAge) { //如果统计周期变更
                 status.reset(event.getSignalingTime());
@@ -106,10 +106,13 @@ public class StayHoursPE extends ProcessingElement {
 
     public void onEvent(TimeUpdateEvent event) {
         synchronized (status) {
-            long latestAge = getNextAge(status.getEventTImeInWindow(), end);
+            long latestAge = getNextAge(status.getEventTimeInWindow(), end);
             if ((!isMatches(status.getStayTime()))  //如果用户当前不满足条件
                     && status.isInsideInWindow()  //并且用户还未离开
-                    && isMatches(status.getStayTime() + TimeUtil.calc(start, end, status.isInsideInWindow(), status.getEventTImeInWindow(), event.getSignalingTime()))) { //并且到当前的停留时间满足条件
+                    && isMatches(status.getStayTime() + TimeUtil.calc(start, end, status.isInsideInWindow(), status.getEventTimeInWindow(), event.getSignalingTime()))) { //并且到当前的停留时间满足条件
+                if(statisticsName.equals("daytime")&&getId().equals("Worker3")){
+                    logger.debug(format("cccc lastTime:%s,thisTime:%s",status.getEventTimeInWindow(),event.getSignalingTime()));
+                }
                 send(status.getImsi(), latestAge, true);
             }
 
@@ -238,7 +241,7 @@ public class StayHoursPE extends ProcessingElement {
         }
 
 
-        public long getEventTImeInWindow() {
+        public long getEventTimeInWindow() {
             return eventTImeInWindow;
         }
 
