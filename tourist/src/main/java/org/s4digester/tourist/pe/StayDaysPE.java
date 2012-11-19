@@ -67,7 +67,7 @@ public class StayDaysPE extends ProcessingElement {
                     for (int i = 1; i < recentDays.length; i++) {
                         recentDays[i - 1] = recentDays[i];
                     }
-                    recentDays[recentDays.length-1]=false;
+                    recentDays[recentDays.length - 1] = false;
                     latestAge++;
                 }
                 //判断：如果更新之前用户是符合条件，更新之后不符合条件，则发出不符合条件的事件
@@ -120,7 +120,7 @@ public class StayDaysPE extends ProcessingElement {
                 if (matchesBefore ^ matchesNow) { //当状态变更时，发送信息
                     send(matchesNow);
                 }
-                message += String.format(",endStatus:%s", Arrays.toString(recentDays));
+                message += String.format("latestAge:%s,endStatus:%s", latestAge, Arrays.toString(recentDays));
                 if (logger.isTraceEnabled()) {
                     logger.trace(message);
                 }
