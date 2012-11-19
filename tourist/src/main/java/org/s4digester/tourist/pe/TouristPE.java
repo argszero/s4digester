@@ -29,7 +29,7 @@ import static java.lang.String.format;
 @ThreadSafe
 public class TouristPE extends ProcessingElement {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private Join join = new Join();
+    private Join join;
     private String[] statisticsNames;//白天和晚上
 
     public TouristPE(App app, String... statisticsNames) {
@@ -39,6 +39,7 @@ public class TouristPE extends ProcessingElement {
 
     @Override
     protected void onCreate() {
+        join = new Join();
     }
 
     @Override
@@ -81,7 +82,7 @@ public class TouristPE extends ProcessingElement {
                 isUpdated = join.tourists.remove(event.getImsi());
             }
             if (isUpdated) {
-                logger.info(format("Tourist:%s", StringUtils.join(join.tourists, ",")));
+                logger.info(format("Tourists Update:%s", StringUtils.join(join.tourists, ",")));
             }
         }
     }
