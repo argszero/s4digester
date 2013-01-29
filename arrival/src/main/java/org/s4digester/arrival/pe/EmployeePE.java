@@ -41,13 +41,9 @@ public class EmployeePE extends ProcessingElement {
 	 * @param workHours 统计天数内在机场时长限制，小时数
 	 * @param workDays 统计天数内在机场天数限制
 	 */
-	public EmployeePE(App app, int statisticsDays, int workHours, int workDays) {
+	public EmployeePE(App app) {
 		super(app);
-		this.statisticsDays = statisticsDays;
-		this.workHours = workHours * 60 * 60 * 1000; // 小时数转换为毫秒数
-		this.workDays = workDays;
-		this.hoursAtAirport =  new long[statisticsDays];
-		logger.debug("EmployeePE Constructor, statisticsDays: " + statisticsDays + ", workHours: " + workHours + ", workDays: " + workDays +".");
+		logger.debug("EmployeePE Constructor.");
 	}
 
 	@Override
@@ -55,6 +51,7 @@ public class EmployeePE extends ProcessingElement {
 		logger.info("Create EmployeePE");
 		logger.info(format("ZONE_OFFSET:%d", Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
 		status = new Status();
+		this.hoursAtAirport =  new long[statisticsDays];
 		for (long stayTimeinmillis : this.hoursAtAirport){
 			stayTimeinmillis = -1L;
 		}
@@ -102,6 +99,24 @@ public class EmployeePE extends ProcessingElement {
 		}
 		return true;
 	}
+	
+	
+	public void setStatisticsDays(int statisticsDays) {
+		this.statisticsDays = statisticsDays;
+		logger.debug("EmployeePE, statisticsDays: " + statisticsDays + ".");
+	}
+
+	public void setWorkHours(long workHours) {
+		this.workHours = workHours * 60 * 60 * 1000; // 小时数转换为毫秒数
+		logger.debug("EmployeePE, workHours: " + workHours + ".");
+	}
+
+	public void setWorkDays(int workDays) {
+		this.workDays = workDays;
+		logger.debug("EmployeePE, workDays: " + workDays + ".");
+	}
+
+
 	/**
 	 * 记录当前数据和状态
 	 */
@@ -120,7 +135,7 @@ public class EmployeePE extends ProcessingElement {
 				imsi=event.getImsi();
 			}
 			else if (!imsi.equals(event.getImsi())){
-				logger.error("Imsi mismatch. Recorded: " + imsi + ", incoming: " + event.getImsi());
+				logger.info("Imsi mismatch. Recorded: " + imsi + ", incoming: " + event.getImsi());
 				return;
 			} else {
 				// do nothing

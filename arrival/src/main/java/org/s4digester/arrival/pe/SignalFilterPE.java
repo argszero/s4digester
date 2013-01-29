@@ -26,7 +26,6 @@ public class SignalFilterPE extends ProcessingElement {
 	
 	public SignalFilterPE(App app){
 		super(app);
-		timeUpdateEventStreams = new Stream[0];
 		logger.debug("SignalFilterPE Constructor.");
 	}
 	
@@ -34,6 +33,7 @@ public class SignalFilterPE extends ProcessingElement {
 	protected void onCreate() {
 		logger.info("Create SignalFilterPE");
 		logger.info(format("ZONE_OFFSET:%d", Calendar.getInstance().get(Calendar.ZONE_OFFSET)));
+//		timeUpdateEventStreams = new Stream[0];
 	}
 
 	@Override
@@ -43,12 +43,13 @@ public class SignalFilterPE extends ProcessingElement {
 
 	public void onEvent(ArrivalSignalEvent event){
 		logger.debug("Receive ArrivalSignalEvent: " + new Gson().toJson(event));
+		
 		// 发送时间更新事件
 		TimeUpdateEvent timeUpdateEvent =  new TimeUpdateEvent();
 		timeUpdateEvent.setImsi(event.getImsi());
 		timeUpdateEvent.setSignalingTime(event.getSignalingTime());
 		emit(timeUpdateEvent, timeUpdateEventStreams);
-		logger.debug("Dispatch TimeUpdateEvent with imsi: " + event.getImsi() +", and time: " + event.getTime() + " as " + new Date(event.getTime()) + ".");
+		logger.debug("Dispatch TimeUpdateEvent with imsi: " + event.getImsi() +", and time: " + event.getSignalingTime() + " as " + new Date(event.getSignalingTime()) + ".");
 		
 		// 检查用户的ARPU
 		String imsi = event.getImsi();
@@ -56,7 +57,7 @@ public class SignalFilterPE extends ProcessingElement {
 			logger.debug("Dispatch ArrivalSignalEvent with imsi: " + imsi +".");
 			emit(event, streams);
 		} else {
-			logger.error("Drop ArrivalSignalEvent with imsi: " + imsi +": check ARPU fails.");
+			logger.info("Drop ArrivalSignalEvent with imsi: " + imsi +": check ARPU fails.");
 		}
 	}
 	

@@ -10,7 +10,7 @@ import org.apache.s4.base.Event;
 public class TimeUpdateEvent extends Event {
 	private String imsi;
 	private long signalingTime;
-//	private final String toAllStr = "all";
+	private final String target = "all";
 
 	public String getImsi() {
 		return imsi;
@@ -28,8 +28,8 @@ public class TimeUpdateEvent extends Event {
 		this.signalingTime = signalingTime;
 	}
 
-//	public String getToAllStr() {
-//		return toAllStr;
-//	}
+	public String getTarget() {
+		return target;
+	}
 	
 }

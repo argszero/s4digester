@@ -2,6 +2,7 @@ package org.s4digester.arrival;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.apache.s4.base.KeyFinder;
 import org.apache.s4.core.App;
@@ -12,6 +13,8 @@ import org.s4digester.arrival.event.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * 筛选机场来港用户App
@@ -35,40 +38,55 @@ public class ArrivalApp extends App {
 	
 	@Override
 	protected void onClose() {
-		logger.info("Close ArrivalApp");
+		logger.info("Close ArrivalApp.");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onInit() {
-		logger.info("Init ArrivalApp begins");
+		logger.info("Init ArrivalApp begins.");
 		
-		EmployeePE employeePE = new EmployeePE(this, 30, 50, 10);
+		EmployeePE employeePE = createPE(EmployeePE.class);
+		employeePE.setStatisticsDays(30);
+		employeePE.setWorkHours(50);
+		employeePE.setWorkDays(10);
+		
 		Stream<ArrivalSignalEvent> employeeStream = createInputStream("ArrivalSignalEvents", new KeyFinder<ArrivalSignalEvent>(){
 			@Override
 			public List<String> get(ArrivalSignalEvent e) {
-				return Arrays.asList(e.getImsi());
+				return ImmutableList.of(e.getImsi());
 			}
 		}, employeePE);
+		
 		// create a SignalFilterPE prototype
-		SignalFilterPE filterPE = new SignalFilterPE(this);
+		SignalFilterPE filterPE = createPE(SignalFilterPE.class);
 		filterPE.setStreams(employeeStream);
 		// Create a stream that listens to the "ArrivalSignals" stream and passes events to the filterPE instance.
 		createInputStream("ArrivalSignals", new KeyFinder<ArrivalSignalEvent>(){
 			@Override
 			public List<String> get(ArrivalSignalEvent e) {
-				return Arrays.asList(e.getImsi());
+				return ImmutableList.of(e.getImsi());
 			}
 		}, filterPE);
 		
 		//SignalFilterPE产生TimeUpdateEvents，给所有EmployeePE
-		Stream<TimeUpdateEvent> timeUpdateEventStream = createInputStream("TimeUpdateEvents", employeePE);
+		Stream<TimeUpdateEvent> timeUpdateEventStream = createInputStream("TimeUpdateEvents", new KeyFinder<TimeUpdateEvent>(){
+			@Override
+			public List<String> get(TimeUpdateEvent e) {
+				List<String> results = new ArrayList<String>();
+//				results.add(e.getImsi());
+				results.add(e.getTarget()); // 随机挑一个PE转发
+				return results;
+//				return ImmutableList.of("all");
+			}
+		}, employeePE);
 		filterPE.setTimeUpdateEventStreams(timeUpdateEventStream);
 		
-		logger.info("Init ArrivalApp complete");
+		logger.info("Init ArrivalApp complete.");
 	}
 	
 	@Override
 	protected void onStart() {
-		logger.info("Startup ArrivalApp");
+		logger.info("Startup ArrivalApp.");
 	}
 }
